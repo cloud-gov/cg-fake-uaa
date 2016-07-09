@@ -22,6 +22,16 @@ func RenderIndex(w http.ResponseWriter, context *IndexPageContext) {
   t.Execute(w, context)
 }
 
+func RedirectToCallback(w http.ResponseWriter, u url.URL,
+                        code string, state string) {
+  q := u.Query()
+  q.Set("code", code)
+  q.Set("state", state)
+  u.RawQuery = q.Encode()
+  w.Header().Set("Location", u.String())
+  w.WriteHeader(302)
+}
+
 // TODO: For more docs, see:
 //   * https://golang.org/doc/articles/wiki/
 //   * https://golang.org/pkg/net/url/
@@ -52,12 +62,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
       if err != nil {
         panic("Couldn't parse callback URL!")
       }
-      q := u.Query()
-      q.Set("code", email)
-      q.Set("state", rq.Get("state"))
-      u.RawQuery = q.Encode()
-      w.Header().Set("Location", u.String())
-      w.WriteHeader(302)
+      RedirectToCallback(w, *u, email, rq.Get("state"))
     }
     written = true
   } else if (r.URL.Path == "/oauth/token") {
