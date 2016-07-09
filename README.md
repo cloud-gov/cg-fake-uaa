@@ -10,4 +10,10 @@ go-bindata -debug data/
 go build
 ```
 
+## Running Tests
+
+```
+go test
+```
+
 [go-bindata]: https://github.com/jteeuwen/go-bindata

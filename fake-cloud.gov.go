@@ -11,6 +11,17 @@ type IndexPageContext struct {
   QueryArgs map[string]string
 }
 
+func RenderIndex(w http.ResponseWriter, context *IndexPageContext) {
+  data, err := Asset("data/index.html")
+  if err != nil {
+    panic("Couldn't find index.html!")
+  }
+  s := string(data)
+  t, _ := template.New("index.html").Parse(s)
+  w.Header().Set("Content-Type", "text/html")
+  t.Execute(w, context)
+}
+
 // TODO: For more docs, see:
 //   * https://golang.org/doc/articles/wiki/
 //   * https://golang.org/pkg/net/url/
@@ -28,18 +39,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
     rq := r.URL.Query()
     email := rq.Get("email")
     if len(email) == 0 {
-      data, err = Asset("data/index.html")
-      if err != nil {
-        panic("Couldn't find index.html!")
-      }
-      s := string(data)
-      t, _ := template.New("index.html").Parse(s)
-      w.Header().Set("Content-Type", "text/html")
       queryArgs := make(map[string]string)
       for k, v := range r.URL.Query() {
         queryArgs[k] = v[0]
       }
-      t.Execute(w, &IndexPageContext{QueryArgs: queryArgs})
+      RenderIndex(w, &IndexPageContext{QueryArgs: queryArgs})
     } else {
       // TODO: Read callback URL from environment or cmdline
       callbackUrl := "http://localhost:8000/callback"
