@@ -57,7 +57,6 @@ func BaseHandler(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
 			}
 			RenderLoginPage(w, &LoginPageContext{QueryArgs: queryArgs})
 		} else {
-			// TODO: Read callback URL from environment or cmdline
 			RedirectToCallback(w, *config.CallbackUrl, email, rq.Get("state"))
 		}
 		written = true
