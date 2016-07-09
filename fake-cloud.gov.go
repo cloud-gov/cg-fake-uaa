@@ -36,13 +36,6 @@ func RedirectToCallback(w http.ResponseWriter, u url.URL,
   w.WriteHeader(302)
 }
 
-// TODO: For more docs, see:
-//   * https://golang.org/doc/articles/wiki/
-//   * https://golang.org/pkg/net/url/
-//   * https://golang.org/pkg/net/http/
-
-// TODO: run this through https://golang.org/cmd/gofmt/
-
 func NewHandler(config *ServerConfig) func(http.ResponseWriter,
                                            *http.Request) {
   return func(w http.ResponseWriter, r *http.Request) {
