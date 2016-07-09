@@ -7,17 +7,17 @@ import (
   "html/template"
 )
 
-type IndexPageContext struct {
+type LoginPageContext struct {
   QueryArgs map[string]string
 }
 
-func RenderIndex(w http.ResponseWriter, context *IndexPageContext) {
-  data, err := Asset("data/index.html")
+func RenderLoginPage(w http.ResponseWriter, context *LoginPageContext) {
+  data, err := Asset("data/login.html")
   if err != nil {
-    panic("Couldn't find index.html!")
+    panic("Couldn't find login.html!")
   }
   s := string(data)
-  t, _ := template.New("index.html").Parse(s)
+  t, _ := template.New("login.html").Parse(s)
   w.Header().Set("Content-Type", "text/html")
   t.Execute(w, context)
 }
@@ -53,7 +53,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
       for k, v := range r.URL.Query() {
         queryArgs[k] = v[0]
       }
-      RenderIndex(w, &IndexPageContext{QueryArgs: queryArgs})
+      RenderLoginPage(w, &LoginPageContext{QueryArgs: queryArgs})
     } else {
       // TODO: Read callback URL from environment or cmdline
       callbackUrl := "http://localhost:8000/callback"

@@ -34,20 +34,20 @@ func urlify(uStr string) *url.URL {
   return u
 }
 
-func TestRenderIndexWorksWithNoQueryArgs(t *testing.T) {
-  context := new(IndexPageContext)
+func TestRenderLoginPageWorksWithNoQueryArgs(t *testing.T) {
+  context := new(LoginPageContext)
   recorder := httptest.NewRecorder()
-  RenderIndex(recorder, context)
+  RenderLoginPage(recorder, context)
   assertStatus(t, recorder, 200)
   assertHeader(t, recorder, "Content-Type", "text/html")
 }
 
-func TestRenderIndexWorksWithQueryArgs(t *testing.T) {
-  context := &IndexPageContext{QueryArgs: make(map[string]string)}
+func TestRenderLoginPageWorksWithQueryArgs(t *testing.T) {
+  context := &LoginPageContext{QueryArgs: make(map[string]string)}
   context.QueryArgs["boop"] = "hi"
 
   recorder := httptest.NewRecorder()
-  RenderIndex(recorder, context)
+  RenderLoginPage(recorder, context)
   assertStatus(t, recorder, 200)
   assertHeader(t, recorder, "Content-Type", "text/html")
 }
