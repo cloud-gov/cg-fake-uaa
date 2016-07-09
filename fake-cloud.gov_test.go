@@ -37,7 +37,10 @@ func urlify(uStr string) *url.URL {
 func handle(request *http.Request) *httptest.ResponseRecorder {
   recorder := httptest.NewRecorder()
 
-  Handler(recorder, request)
+  handler := NewHandler(&ServerConfig{
+    CallbackUrl: urlify("http://client/callback"),
+  })
+  handler(recorder, request)
 
   return recorder
 }
@@ -70,7 +73,7 @@ func TestRedirectToCallbackWorks(t *testing.T) {
 
   assertStatus(t, recorder, 302)
   assertHeader(t, recorder, "Location",
-               "http://localhost:8000/callback?code=foo&state=bar")
+               "http://client/callback?code=foo&state=bar")
 }
 
 func TestGetSvgWorks(t *testing.T) {

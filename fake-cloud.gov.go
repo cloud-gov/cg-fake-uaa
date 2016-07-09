@@ -11,6 +11,10 @@ type LoginPageContext struct {
   QueryArgs map[string]string
 }
 
+type ServerConfig struct {
+  CallbackUrl *url.URL
+}
+
 func RenderLoginPage(w http.ResponseWriter, context *LoginPageContext) {
   data, err := Asset("data/login.html")
   if err != nil {
@@ -39,7 +43,15 @@ func RedirectToCallback(w http.ResponseWriter, u url.URL,
 
 // TODO: run this through https://golang.org/cmd/gofmt/
 
-func Handler(w http.ResponseWriter, r *http.Request) {
+func NewHandler(config *ServerConfig) func(http.ResponseWriter,
+                                           *http.Request) {
+  return func(w http.ResponseWriter, r *http.Request) {
+    BaseHandler(config, w, r)
+  }
+}
+
+func BaseHandler(config *ServerConfig, w http.ResponseWriter,
+                 r *http.Request) {
   var data []byte
   var err error
 
@@ -56,13 +68,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
       RenderLoginPage(w, &LoginPageContext{QueryArgs: queryArgs})
     } else {
       // TODO: Read callback URL from environment or cmdline
-      callbackUrl := "http://localhost:8000/callback"
-
-      u, err := url.Parse(callbackUrl)
-      if err != nil {
-        panic("Couldn't parse callback URL!")
-      }
-      RedirectToCallback(w, *u, email, rq.Get("state"))
+      RedirectToCallback(w, *config.CallbackUrl, email, rq.Get("state"))
     }
     written = true
   } else if (r.URL.Path == "/oauth/token") {
@@ -89,6 +95,17 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
   print("Listening on port 8080.\n")
-  http.HandleFunc("/", Handler)
+
+// TODO: Bring this back
+
+//  http.HandleFunc("/", Handler)
+
+//      callbackUrl := "http://localhost:8000/callback"
+
+//      u, err := url.Parse(callbackUrl)
+//      if err != nil {
+//        panic("Couldn't parse callback URL!")
+//      }
+
   http.ListenAndServe(":8080", nil)
 }
