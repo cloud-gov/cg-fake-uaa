@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"flag"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -102,13 +103,22 @@ func Urlify(uStr string) *url.URL {
 }
 
 func main() {
-	print("Listening on port 8080.\n")
+	var callbackUrl string
+
+	portPtr := flag.Int("port", 8080, "Port to listen on")
+	flag.StringVar(&callbackUrl, "callback-url", "http://localhost:8000/callback", "OAuth2 Callback URL")
+
+	flag.Parse()
 
 	handler := NewHandler(&ServerConfig{
-		// TODO: Get this from the environment and/or command line.
-		CallbackUrl: Urlify("http://localhost:8000/callback"),
+		CallbackUrl: Urlify(callbackUrl),
 	})
 
+	fmt.Printf("OAuth2 callback URL: %s\n", callbackUrl)
+	fmt.Printf("OAuth2 authorize URL: http://localhost:%d%s\n", *portPtr, urls.Reverse("authorize"))
+	fmt.Printf("OAuth2 token URL: http://localhost:%d%s\n", *portPtr, urls.Reverse("token"))
+	fmt.Printf("\nListening on port %d.\n", *portPtr)
+
 	http.HandleFunc("/", handler)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(fmt.Sprintf(":%d", *portPtr), nil)
 }
