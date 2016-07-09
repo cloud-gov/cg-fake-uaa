@@ -106,16 +106,11 @@ func Urlify(uStr string) *url.URL {
 func main() {
   print("Listening on port 8080.\n")
 
-// TODO: Bring this back
+  handler := NewHandler(&ServerConfig{
+    // TODO: Get this from the environment and/or command line.
+    CallbackUrl: Urlify("http://localhost:8000/callback"),
+  })
 
-//  http.HandleFunc("/", Handler)
-
-//      callbackUrl := "http://localhost:8000/callback"
-
-//      u, err := url.Parse(callbackUrl)
-//      if err != nil {
-//        panic("Couldn't parse callback URL!")
-//      }
-
+  http.HandleFunc("/", handler)
   http.ListenAndServe(":8080", nil)
 }
