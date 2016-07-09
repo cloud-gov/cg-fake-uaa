@@ -39,7 +39,7 @@ func RedirectToCallback(w http.ResponseWriter, u url.URL,
 
 // TODO: run this through https://golang.org/cmd/gofmt/
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func Handler(w http.ResponseWriter, r *http.Request) {
   var data []byte
   var err error
 
@@ -89,6 +89,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
   print("Listening on port 8080.\n")
-  http.HandleFunc("/", handler)
+  http.HandleFunc("/", Handler)
   http.ListenAndServe(":8080", nil)
 }

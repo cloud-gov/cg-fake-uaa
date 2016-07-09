@@ -2,7 +2,9 @@ package main
 
 import (
   "testing"
+  "fmt"
   "net/url"
+  "net/http"
   "net/http/httptest"
 )
 
@@ -20,6 +22,16 @@ func assertHeader(t *testing.T, recorder *httptest.ResponseRecorder,
     t.Errorf("Expected header '%s' to be '%s', but it is '%s'",
              header, value, actualValue)
   }
+}
+
+func urlify(uStr string) *url.URL {
+  u, err := url.Parse(uStr)
+
+  if (err != nil) {
+    panic(fmt.Sprintf("'%s' is not a valid URL!", uStr))
+  }
+
+  return u
 }
 
 func TestRenderIndexWorksWithNoQueryArgs(t *testing.T) {
@@ -42,9 +54,33 @@ func TestRenderIndexWorksWithQueryArgs(t *testing.T) {
 
 func TestRedirectToCallbackWorks(t *testing.T) {
   recorder := httptest.NewRecorder()
-  u, _ := url.Parse("http://example.org")
-  RedirectToCallback(recorder, *u, "someCode", "someState")
+  RedirectToCallback(recorder, *urlify("http://example.org"),
+                     "someCode", "someState")
   assertStatus(t, recorder, 302)
   assertHeader(t, recorder, "Location",
                "http://example.org?code=someCode&state=someState")
+}
+
+func TestHandlerGetSvgWorks(t *testing.T) {
+  request := &http.Request{
+    Method: "GET",
+    URL: urlify("/fake-cloud.gov.svg"),
+  }
+  recorder := httptest.NewRecorder()
+
+  Handler(recorder, request)
+  assertStatus(t, recorder, 200)
+  assertHeader(t, recorder, "Content-Type", "image/svg+xml")
+}
+
+func TestHandler404Works(t *testing.T) {
+  request := &http.Request{
+    Method: "GET",
+    URL: urlify("/blah"),
+  }
+  recorder := httptest.NewRecorder()
+
+  Handler(recorder, request)
+  assertStatus(t, recorder, 404)
+  assertHeader(t, recorder, "Content-Type", "text/plain")
 }
