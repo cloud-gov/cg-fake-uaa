@@ -1,85 +1,83 @@
 package main
 
 import (
-  "testing"
-  "net/http"
-  "net/http/httptest"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 )
 
-func assertStatus(t *testing.T, recorder *httptest.ResponseRecorder,
-                  code int) {
-  if recorder.Code != code {
-    t.Errorf("Expected code %d, got %d", code, recorder.Code)
-  }
+func assertStatus(t *testing.T, recorder *httptest.ResponseRecorder, code int) {
+	if recorder.Code != code {
+		t.Errorf("Expected code %d, got %d", code, recorder.Code)
+	}
 }
 
-func assertHeader(t *testing.T, recorder *httptest.ResponseRecorder,
-                  header string, value string) {
-  actualValue := recorder.HeaderMap.Get(header)
-  if actualValue != value {
-    t.Errorf("Expected header '%s' to be '%s', but it is '%s'",
-             header, value, actualValue)
-  }
+func assertHeader(t *testing.T, recorder *httptest.ResponseRecorder, header string, value string) {
+	actualValue := recorder.HeaderMap.Get(header)
+	if actualValue != value {
+		t.Errorf("Expected header '%s' to be '%s', but it is '%s'",
+			header, value, actualValue)
+	}
 }
 
 func handle(request *http.Request) *httptest.ResponseRecorder {
-  recorder := httptest.NewRecorder()
+	recorder := httptest.NewRecorder()
 
-  handler := NewHandler(&ServerConfig{
-    CallbackUrl: Urlify("http://client/callback"),
-  })
-  handler(recorder, request)
+	handler := NewHandler(&ServerConfig{
+		CallbackUrl: Urlify("http://client/callback"),
+	})
+	handler(recorder, request)
 
-  return recorder
+	return recorder
 }
 
 func TestLoginPageWorksWithoutQueryArgs(t *testing.T) {
-  recorder := handle(&http.Request{
-    Method: "GET",
-    URL: Urlify("/oauth/authorize"),
-  })
+	recorder := handle(&http.Request{
+		Method: "GET",
+		URL:    Urlify("/oauth/authorize"),
+	})
 
-  assertStatus(t, recorder, 200)
-  assertHeader(t, recorder, "Content-Type", "text/html")
+	assertStatus(t, recorder, 200)
+	assertHeader(t, recorder, "Content-Type", "text/html")
 }
 
 func TestLoginPageWorksWithQueryArgs(t *testing.T) {
-  recorder := handle(&http.Request{
-    Method: "GET",
-    URL: Urlify("/oauth/authorize?state=blah"),
-  })
+	recorder := handle(&http.Request{
+		Method: "GET",
+		URL:    Urlify("/oauth/authorize?state=blah"),
+	})
 
-  assertStatus(t, recorder, 200)
-  assertHeader(t, recorder, "Content-Type", "text/html")
+	assertStatus(t, recorder, 200)
+	assertHeader(t, recorder, "Content-Type", "text/html")
 }
 
 func TestRedirectToCallbackWorks(t *testing.T) {
-  recorder := handle(&http.Request{
-    Method: "GET",
-    URL: Urlify("/oauth/authorize?email=foo&state=bar"),
-  })
+	recorder := handle(&http.Request{
+		Method: "GET",
+		URL:    Urlify("/oauth/authorize?email=foo&state=bar"),
+	})
 
-  assertStatus(t, recorder, 302)
-  assertHeader(t, recorder, "Location",
-               "http://client/callback?code=foo&state=bar")
+	assertStatus(t, recorder, 302)
+	assertHeader(t, recorder, "Location",
+		"http://client/callback?code=foo&state=bar")
 }
 
 func TestGetSvgWorks(t *testing.T) {
-  recorder := handle(&http.Request{
-    Method: "GET",
-    URL: Urlify("/fake-cloud.gov.svg"),
-  })
+	recorder := handle(&http.Request{
+		Method: "GET",
+		URL:    Urlify("/fake-cloud.gov.svg"),
+	})
 
-  assertStatus(t, recorder, 200)
-  assertHeader(t, recorder, "Content-Type", "image/svg+xml")
+	assertStatus(t, recorder, 200)
+	assertHeader(t, recorder, "Content-Type", "image/svg+xml")
 }
 
 func Test404Works(t *testing.T) {
-  recorder := handle(&http.Request{
-    Method: "GET",
-    URL: Urlify("/blah"),
-  })
+	recorder := handle(&http.Request{
+		Method: "GET",
+		URL:    Urlify("/blah"),
+	})
 
-  assertStatus(t, recorder, 404)
-  assertHeader(t, recorder, "Content-Type", "text/plain")
+	assertStatus(t, recorder, 404)
+	assertHeader(t, recorder, "Content-Type", "text/plain")
 }
