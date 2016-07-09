@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+#logo {
+  width: 500px;
+}
+
+body {
+  font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  max-width: 640px;
+  margin: 32px auto;
+  text-align: center;
+}
+
+a {
+  color: inherit;
+}
+
+footer {
+  padding-top: 3em;
+  color: gray;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}
+
+.submit-wrapper {
+  margin-top: 1em;
+}
+
+button[type="submit"] {
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 1em;
+  padding: 16px;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  background-color: #1F2C38;
+}
+
+input {
+  padding: 16px;
+  font-family: inherit;
+  font-size: 1em;
+  width: 20em;
+  border: 1px solid lightgray;
+}
+</style>
+<title>Fake cloud.gov Login</title>
+<body>
+  <img src="/fake-cloud.gov.svg" id="logo">
+  <p>Welcome to your fake <abbr title="User Account and Authentication">UAA</abbr> provider!</p>
+  <p>
+    Just enter an email address below and we'll log you in.
+  </p>
+  <form>
+    <label for="email" class="sr-only">E-mail</label>
+    <input type="email" name="email" id="email" autofocus>
+    {{ range $key, $value := .QueryArgs }}
+      <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+    {{ end }}
+    <div class="submit-wrapper">
+      <button type="submit">Log In</button>
+    </div>
+  </form>
+  <footer>
+    This is not the real <a href="https://cloud.gov/">cloud.gov</a> and
+    is intended for development and debugging purposes only.
+  </footer>
+</body>
