@@ -93,6 +93,16 @@ func BaseHandler(config *ServerConfig, w http.ResponseWriter,
   }
 }
 
+func Urlify(uStr string) *url.URL {
+  u, err := url.Parse(uStr)
+
+  if (err != nil) {
+    panic(fmt.Sprintf("'%s' is not a valid URL!", uStr))
+  }
+
+  return u
+}
+
 func main() {
   print("Listening on port 8080.\n")
 

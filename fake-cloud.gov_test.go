@@ -2,8 +2,6 @@ package main
 
 import (
   "testing"
-  "fmt"
-  "net/url"
   "net/http"
   "net/http/httptest"
 )
@@ -24,21 +22,11 @@ func assertHeader(t *testing.T, recorder *httptest.ResponseRecorder,
   }
 }
 
-func urlify(uStr string) *url.URL {
-  u, err := url.Parse(uStr)
-
-  if (err != nil) {
-    panic(fmt.Sprintf("'%s' is not a valid URL!", uStr))
-  }
-
-  return u
-}
-
 func handle(request *http.Request) *httptest.ResponseRecorder {
   recorder := httptest.NewRecorder()
 
   handler := NewHandler(&ServerConfig{
-    CallbackUrl: urlify("http://client/callback"),
+    CallbackUrl: Urlify("http://client/callback"),
   })
   handler(recorder, request)
 
@@ -48,7 +36,7 @@ func handle(request *http.Request) *httptest.ResponseRecorder {
 func TestLoginPageWorksWithoutQueryArgs(t *testing.T) {
   recorder := handle(&http.Request{
     Method: "GET",
-    URL: urlify("/oauth/authorize"),
+    URL: Urlify("/oauth/authorize"),
   })
 
   assertStatus(t, recorder, 200)
@@ -58,7 +46,7 @@ func TestLoginPageWorksWithoutQueryArgs(t *testing.T) {
 func TestLoginPageWorksWithQueryArgs(t *testing.T) {
   recorder := handle(&http.Request{
     Method: "GET",
-    URL: urlify("/oauth/authorize?state=blah"),
+    URL: Urlify("/oauth/authorize?state=blah"),
   })
 
   assertStatus(t, recorder, 200)
@@ -68,7 +56,7 @@ func TestLoginPageWorksWithQueryArgs(t *testing.T) {
 func TestRedirectToCallbackWorks(t *testing.T) {
   recorder := handle(&http.Request{
     Method: "GET",
-    URL: urlify("/oauth/authorize?email=foo&state=bar"),
+    URL: Urlify("/oauth/authorize?email=foo&state=bar"),
   })
 
   assertStatus(t, recorder, 302)
@@ -79,7 +67,7 @@ func TestRedirectToCallbackWorks(t *testing.T) {
 func TestGetSvgWorks(t *testing.T) {
   recorder := handle(&http.Request{
     Method: "GET",
-    URL: urlify("/fake-cloud.gov.svg"),
+    URL: Urlify("/fake-cloud.gov.svg"),
   })
 
   assertStatus(t, recorder, 200)
@@ -89,7 +77,7 @@ func TestGetSvgWorks(t *testing.T) {
 func Test404Works(t *testing.T) {
   recorder := handle(&http.Request{
     Method: "GET",
-    URL: urlify("/blah"),
+    URL: Urlify("/blah"),
   })
 
   assertStatus(t, recorder, 404)
