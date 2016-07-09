@@ -42,11 +42,6 @@ func NewHandler(config *ServerConfig) func(http.ResponseWriter, *http.Request) {
 }
 
 func BaseHandler(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
-	var data []byte
-	var err error
-
-	written := false
-
 	if r.URL.Path == "/oauth/authorize" {
 		rq := r.URL.Query()
 		email := rq.Get("email")
@@ -59,26 +54,22 @@ func BaseHandler(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
 		} else {
 			RedirectToCallback(w, *config.CallbackUrl, email, rq.Get("state"))
 		}
-		written = true
 	} else if r.URL.Path == "/oauth/token" {
 		// TODO: Finish implementing this based on
 		// https://github.com/18F/calc/blob/develop/fake_uaa_provider/views.py
-		data = []byte("TODO: Implement this!")
 		w.Header().Set("Content-Type", "text/plain")
+		fmt.Fprintf(w, "TODO: Implement this!")
 	} else if r.URL.Path == "/fake-cloud.gov.svg" {
-		data, err = Asset("data/fake-cloud.gov.svg")
+		data, err := Asset("data/fake-cloud.gov.svg")
 		if err != nil {
 			panic("Couldn't find fake-cloud.gov.svg!")
 		}
 		w.Header().Set("Content-Type", "image/svg+xml")
+		fmt.Fprintf(w, "%s", data)
 	} else {
-		data = []byte("Not Found")
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(404)
-	}
-
-	if !written {
-		fmt.Fprintf(w, "%s", data)
+		fmt.Fprintf(w, "Not Found")
 	}
 }
 
