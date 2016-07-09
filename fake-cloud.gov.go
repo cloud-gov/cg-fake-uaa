@@ -7,6 +7,14 @@ import (
 	"net/url"
 )
 
+type UrlMap map[string]string
+
+var urls = UrlMap{
+	"authorize": "/oauth/authorize",
+	"token": "/oauth/token",
+	"svgLogo": "/fake-cloud.gov.svg",
+}
+
 type LoginPageContext struct {
 	QueryArgs map[string]string
 }
@@ -15,13 +23,23 @@ type ServerConfig struct {
 	CallbackUrl *url.URL
 }
 
+func (u UrlMap) Reverse(name string) string {
+	result := u[name]
+	if result == "" {
+		panic(fmt.Sprintf("No URL named '%s'!", name))
+	}
+	return result
+}
+
 func RenderLoginPage(w http.ResponseWriter, context *LoginPageContext) {
 	data, err := Asset("data/login.html")
 	if err != nil {
 		panic("Couldn't find login.html!")
 	}
 	s := string(data)
-	t, _ := template.New("login.html").Parse(s)
+	t, _ := template.New("login.html").Funcs(template.FuncMap{
+		"reverse": urls.Reverse,
+	}).Parse(s)
 	w.Header().Set("Content-Type", "text/html")
 	t.Execute(w, context)
 }
@@ -42,7 +60,7 @@ func NewHandler(config *ServerConfig) func(http.ResponseWriter, *http.Request) {
 }
 
 func BaseHandler(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path == "/oauth/authorize" {
+	if r.URL.Path == urls.Reverse("authorize") {
 		rq := r.URL.Query()
 		email := rq.Get("email")
 		if len(email) == 0 {
@@ -54,12 +72,12 @@ func BaseHandler(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
 		} else {
 			RedirectToCallback(w, *config.CallbackUrl, email, rq.Get("state"))
 		}
-	} else if r.URL.Path == "/oauth/token" {
+	} else if r.URL.Path == urls.Reverse("token") {
 		// TODO: Finish implementing this based on
 		// https://github.com/18F/calc/blob/develop/fake_uaa_provider/views.py
 		w.Header().Set("Content-Type", "text/plain")
 		fmt.Fprintf(w, "TODO: Implement this!")
-	} else if r.URL.Path == "/fake-cloud.gov.svg" {
+	} else if r.URL.Path == urls.Reverse("svgLogo") {
 		data, err := Asset("data/fake-cloud.gov.svg")
 		if err != nil {
 			panic("Couldn't find fake-cloud.gov.svg!")

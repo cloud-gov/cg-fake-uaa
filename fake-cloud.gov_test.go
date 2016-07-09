@@ -62,7 +62,7 @@ func TestRedirectToCallbackWorks(t *testing.T) {
 		"http://client/callback?code=foo&state=bar")
 }
 
-func TestGetSvgWorks(t *testing.T) {
+func TestGetSvgLogoWorks(t *testing.T) {
 	recorder := handle(&http.Request{
 		Method: "GET",
 		URL:    Urlify("/fake-cloud.gov.svg"),
