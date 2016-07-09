@@ -65,7 +65,7 @@ input {
   </p>
   <form>
     <label for="email" class="sr-only">E-mail</label>
-    <input type="email" name="email" id="email" autofocus>
+    <input type="email" name="email" id="email" required autofocus>
     {{ range $key, $value := .QueryArgs }}
       <input type="hidden" name="{{ $key }}" value="{{ $value }}">
     {{ end }}
