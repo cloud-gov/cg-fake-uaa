@@ -34,40 +34,39 @@ func urlify(uStr string) *url.URL {
   return u
 }
 
-func TestLoginPageWorksWithoutQueryArgs(t *testing.T) {
-  request := &http.Request{
-    Method: "GET",
-    URL: urlify("/oauth/authorize"),
-  }
+func handle(request *http.Request) *httptest.ResponseRecorder {
   recorder := httptest.NewRecorder()
 
   Handler(recorder, request)
+
+  return recorder
+}
+
+func TestLoginPageWorksWithoutQueryArgs(t *testing.T) {
+  recorder := handle(&http.Request{
+    Method: "GET",
+    URL: urlify("/oauth/authorize"),
+  })
 
   assertStatus(t, recorder, 200)
   assertHeader(t, recorder, "Content-Type", "text/html")
 }
 
 func TestLoginPageWorksWithQueryArgs(t *testing.T) {
-  request := &http.Request{
+  recorder := handle(&http.Request{
     Method: "GET",
     URL: urlify("/oauth/authorize?state=blah"),
-  }
-  recorder := httptest.NewRecorder()
-
-  Handler(recorder, request)
+  })
 
   assertStatus(t, recorder, 200)
   assertHeader(t, recorder, "Content-Type", "text/html")
 }
 
 func TestRedirectToCallbackWorks(t *testing.T) {
-  request := &http.Request{
+  recorder := handle(&http.Request{
     Method: "GET",
     URL: urlify("/oauth/authorize?email=foo&state=bar"),
-  }
-  recorder := httptest.NewRecorder()
-
-  Handler(recorder, request)
+  })
 
   assertStatus(t, recorder, 302)
   assertHeader(t, recorder, "Location",
@@ -75,25 +74,21 @@ func TestRedirectToCallbackWorks(t *testing.T) {
 }
 
 func TestGetSvgWorks(t *testing.T) {
-  request := &http.Request{
+  recorder := handle(&http.Request{
     Method: "GET",
     URL: urlify("/fake-cloud.gov.svg"),
-  }
-  recorder := httptest.NewRecorder()
+  })
 
-  Handler(recorder, request)
   assertStatus(t, recorder, 200)
   assertHeader(t, recorder, "Content-Type", "image/svg+xml")
 }
 
 func Test404Works(t *testing.T) {
-  request := &http.Request{
+  recorder := handle(&http.Request{
     Method: "GET",
     URL: urlify("/blah"),
-  }
-  recorder := httptest.NewRecorder()
+  })
 
-  Handler(recorder, request)
   assertStatus(t, recorder, 404)
   assertHeader(t, recorder, "Content-Type", "text/plain")
 }
