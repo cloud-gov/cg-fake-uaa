@@ -15,7 +15,7 @@ func assertStatus(t *testing.T, recorder *httptest.ResponseRecorder,
 
 func assertHeader(t *testing.T, recorder *httptest.ResponseRecorder,
                   header string, value string) {
-  actualValue := recorder.Header().Get(header)
+  actualValue := recorder.HeaderMap.Get(header)
   if actualValue != value {
     t.Errorf("Expected header '%s' to be '%s', but it is '%s'",
              header, value, actualValue)
