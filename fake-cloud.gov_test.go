@@ -34,34 +34,47 @@ func urlify(uStr string) *url.URL {
   return u
 }
 
-func TestRenderLoginPageWorksWithNoQueryArgs(t *testing.T) {
-  context := new(LoginPageContext)
+func TestLoginPageWorksWithoutQueryArgs(t *testing.T) {
+  request := &http.Request{
+    Method: "GET",
+    URL: urlify("/oauth/authorize"),
+  }
   recorder := httptest.NewRecorder()
-  RenderLoginPage(recorder, context)
+
+  Handler(recorder, request)
+
   assertStatus(t, recorder, 200)
   assertHeader(t, recorder, "Content-Type", "text/html")
 }
 
-func TestRenderLoginPageWorksWithQueryArgs(t *testing.T) {
-  context := &LoginPageContext{QueryArgs: make(map[string]string)}
-  context.QueryArgs["boop"] = "hi"
-
+func TestLoginPageWorksWithQueryArgs(t *testing.T) {
+  request := &http.Request{
+    Method: "GET",
+    URL: urlify("/oauth/authorize?state=blah"),
+  }
   recorder := httptest.NewRecorder()
-  RenderLoginPage(recorder, context)
+
+  Handler(recorder, request)
+
   assertStatus(t, recorder, 200)
   assertHeader(t, recorder, "Content-Type", "text/html")
 }
 
 func TestRedirectToCallbackWorks(t *testing.T) {
+  request := &http.Request{
+    Method: "GET",
+    URL: urlify("/oauth/authorize?email=foo&state=bar"),
+  }
   recorder := httptest.NewRecorder()
-  RedirectToCallback(recorder, *urlify("http://example.org"),
-                     "someCode", "someState")
+
+  Handler(recorder, request)
+
   assertStatus(t, recorder, 302)
   assertHeader(t, recorder, "Location",
-               "http://example.org?code=someCode&state=someState")
+               "http://localhost:8000/callback?code=foo&state=bar")
 }
 
-func TestHandlerGetSvgWorks(t *testing.T) {
+func TestGetSvgWorks(t *testing.T) {
   request := &http.Request{
     Method: "GET",
     URL: urlify("/fake-cloud.gov.svg"),
@@ -73,7 +86,7 @@ func TestHandlerGetSvgWorks(t *testing.T) {
   assertHeader(t, recorder, "Content-Type", "image/svg+xml")
 }
 
-func TestHandler404Works(t *testing.T) {
+func Test404Works(t *testing.T) {
   request := &http.Request{
     Method: "GET",
     URL: urlify("/blah"),
