@@ -7,7 +7,14 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"math/rand"
 )
+
+var taglines = [...]string{
+	`Welcome to your fake <abbr title="User Account and Authentication">UAA</abbr> provider!`,
+	`The convenience of zero-factor authentication is here.`,
+	`We're like <a href="https://cloud.gov">cloud.gov</a>, but without the security.`,
+}
 
 type UrlMap map[string]string
 
@@ -18,6 +25,7 @@ var urls = UrlMap{
 }
 
 type LoginPageContext struct {
+	Tagline template.HTML
 	QueryArgs map[string]string
 }
 
@@ -32,6 +40,11 @@ type TokenResponse struct {
 	RefreshToken string `json:"refresh_token"`
 	Scope        string `json:"scope"`
 	TokenType    string `json:"token_type"`
+}
+
+func GetRandomTagline() string {
+	n := rand.Intn(len(taglines))
+	return taglines[n]
 }
 
 func (u UrlMap) Reverse(name string) string {
@@ -107,7 +120,10 @@ func BaseHandler(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
 			for k, v := range r.URL.Query() {
 				queryArgs[k] = v[0]
 			}
-			RenderLoginPage(w, &LoginPageContext{QueryArgs: queryArgs})
+			RenderLoginPage(w, &LoginPageContext{
+				Tagline: template.HTML(GetRandomTagline()),
+				QueryArgs: queryArgs,
+			})
 		} else {
 			RedirectToCallback(w, *config.CallbackUrl, email, rq.Get("state"))
 		}
