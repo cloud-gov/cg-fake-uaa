@@ -24,10 +24,7 @@ func getRandomTagline() string {
 }
 
 func renderLoginPage(w http.ResponseWriter, context *loginPageContext) {
-	data, err := GetAsset("data/login.html")
-	if err != nil {
-		panic("Couldn't find login.html!")
-	}
+	data := GetAsset("data/login.html")
 	s := string(data)
 	t, _ := template.New("login.html").Funcs(template.FuncMap{
 		"reverse": Urls.Reverse,

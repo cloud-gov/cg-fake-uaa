@@ -16,11 +16,20 @@ func readFile(path string) ([]byte, error) {
 	return buf, err
 }
 
-func GetAsset(path string) ([]byte, error) {
+func GetAsset(path string) []byte {
+	var data []byte
+	var err error
+
 	debug := os.Getenv("FAKECLOUDGOV_DEBUG")
 	if (debug == "") {
-		return Asset(path)
+		data, err = Asset(path)
 	} else {
-		return readFile(path)
+		data, err = readFile(path)
 	}
+
+	if (err != nil) {
+		panic(fmt.Sprintf("could not open %s!", path))
+	}
+
+	return data
 }

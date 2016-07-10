@@ -22,17 +22,11 @@ func baseHandler(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
 	} else if r.URL.Path == Urls.Reverse("token") && r.Method == "POST" {
 		ExchangeCodeForAccessToken(w, r)
 	} else if r.URL.Path == Urls.Reverse("svgLogo") {
-		data, err := GetAsset("data/fake-cloud.gov.svg")
-		if err != nil {
-			panic("Couldn't find fake-cloud.gov.svg!")
-		}
+		data := GetAsset("data/fake-cloud.gov.svg")
 		w.Header().Set("Content-Type", "image/svg+xml")
 		fmt.Fprintf(w, "%s", data)
 	} else if r.URL.Path == Urls.Reverse("stylesheet") {
-		data, err := GetAsset("data/style.css")
-		if err != nil {
-			panic("Couldn't find style.css!")
-		}
+		data := GetAsset("data/style.css")
 		w.Header().Set("Content-Type", "text/css")
 		fmt.Fprintf(w, "%s", data)
 	} else {
