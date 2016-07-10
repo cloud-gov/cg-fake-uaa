@@ -8,14 +8,6 @@ import (
 	"net/url"
 )
 
-type UrlMap map[string]string
-
-var Urls = UrlMap{
-	"authorize": "/oauth/authorize",
-	"token": "/oauth/token",
-	"svgLogo": "/fake-cloud.gov.svg",
-}
-
 type ServerConfig struct {
 	CallbackUrl *url.URL
 }
@@ -27,14 +19,6 @@ type TokenResponse struct {
 	RefreshToken string `json:"refresh_token"`
 	Scope        string `json:"scope"`
 	TokenType    string `json:"token_type"`
-}
-
-func (u UrlMap) Reverse(name string) string {
-	result := u[name]
-	if result == "" {
-		panic(fmt.Sprintf("No URL named '%s'!", name))
-	}
-	return result
 }
 
 func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request) {
@@ -85,16 +69,6 @@ func BaseHandler(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
 		fmt.Fprintf(w, "Not Found")
 	}
-}
-
-func Urlify(uStr string) *url.URL {
-	u, err := url.Parse(uStr)
-
-	if err != nil {
-		panic(fmt.Sprintf("'%s' is not a valid URL!", uStr))
-	}
-
-	return u
 }
 
 func main() {
