@@ -10,7 +10,7 @@ func main() {
 	var callbackUrl string
 
 	portPtr := flag.Int("port", 8080, "Port to listen on")
-	flag.StringVar(&callbackUrl, "callback-url", "http://localhost:8000/callback", "OAuth2 Callback URL")
+	flag.StringVar(&callbackUrl, "callback-url", "http://localhost:8000/auth/callback", "OAuth2 Callback URL")
 
 	flag.Parse()
 
