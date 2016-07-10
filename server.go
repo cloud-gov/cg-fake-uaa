@@ -22,7 +22,7 @@ func baseHandler(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
 	} else if r.URL.Path == Urls.Reverse("token") && r.Method == "POST" {
 		ExchangeCodeForAccessToken(w, r)
 	} else if r.URL.Path == Urls.Reverse("svgLogo") {
-		data, err := Asset("data/fake-cloud.gov.svg")
+		data, err := GetAsset("data/fake-cloud.gov.svg")
 		if err != nil {
 			panic("Couldn't find fake-cloud.gov.svg!")
 		}

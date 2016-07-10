@@ -24,7 +24,7 @@ func getRandomTagline() string {
 }
 
 func renderLoginPage(w http.ResponseWriter, context *loginPageContext) {
-	data, err := Asset("data/login.html")
+	data, err := GetAsset("data/login.html")
 	if err != nil {
 		panic("Couldn't find login.html!")
 	}
