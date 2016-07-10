@@ -65,9 +65,16 @@ func RedirectToCallback(w http.ResponseWriter, u url.URL, code string, state str
 }
 
 func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request) {
+	// TODO: Ensure 'code' is in POST args.
+	// TODO: Ensure 'client_id' is in POST args.
+	// TODO: Ensure 'client_secret' is in POST args.
+	// TODO: Ensure 'grant_type' is 'authorization_code'.
+	// TODO: Ensure 'reponse_type' is 'token'.
+
 	email := r.FormValue("code")
+	accessToken := fmt.Sprintf("TODO: build jwt access token for %s", email)
 	str, err := json.Marshal(TokenResponse{
-		AccessToken: fmt.Sprintf("TODO: jwt access token for %s", email),
+		AccessToken: accessToken,
 		// TODO: Actually provide a useful value here.
 		ExpiresIn: 1,
 		Jti: "fake_jti",
@@ -93,6 +100,9 @@ func BaseHandler(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == urls.Reverse("authorize") {
 		rq := r.URL.Query()
 		email := rq.Get("email")
+		// TODO: Ensure 'client_id' is in GET params.
+		// TODO: Ensure 'state' is in GET params.
+		// TODO: Ensure 'response_type' is 'code'.
 		if len(email) == 0 {
 			queryArgs := make(map[string]string)
 			for k, v := range r.URL.Query() {
