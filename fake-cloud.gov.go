@@ -97,7 +97,7 @@ func NewHandler(config *ServerConfig) func(http.ResponseWriter, *http.Request) {
 }
 
 func BaseHandler(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path == urls.Reverse("authorize") {
+	if r.URL.Path == urls.Reverse("authorize") && r.Method == "GET" {
 		rq := r.URL.Query()
 		email := rq.Get("email")
 		// TODO: Ensure 'client_id' is in GET params.
@@ -112,7 +112,7 @@ func BaseHandler(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
 		} else {
 			RedirectToCallback(w, *config.CallbackUrl, email, rq.Get("state"))
 		}
-	} else if r.URL.Path == urls.Reverse("token") {
+	} else if r.URL.Path == urls.Reverse("token") && r.Method == "POST" {
 		ExchangeCodeForAccessToken(w, r)
 	} else if r.URL.Path == urls.Reverse("svgLogo") {
 		data, err := Asset("data/fake-cloud.gov.svg")
