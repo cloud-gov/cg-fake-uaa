@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"flag"
 	"html/template"
+	"encoding/json"
 	"net/http"
 	"net/url"
 )
@@ -22,6 +23,15 @@ type LoginPageContext struct {
 
 type ServerConfig struct {
 	CallbackUrl *url.URL
+}
+
+type TokenResponse struct {
+	AccessToken  string `json:"access_token"`
+	ExpiresIn    int64  `json:"expires_in"`
+	Jti          string `json:"jti"`
+	RefreshToken string `json:"refresh_token"`
+	Scope        string `json:"scope"`
+	TokenType    string `json:"token_type"`
 }
 
 func (u UrlMap) Reverse(name string) string {
@@ -54,6 +64,25 @@ func RedirectToCallback(w http.ResponseWriter, u url.URL, code string, state str
 	w.WriteHeader(302)
 }
 
+func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request) {
+	email := r.FormValue("code")
+	str, err := json.Marshal(TokenResponse{
+		AccessToken: fmt.Sprintf("TODO: jwt access token for %s", email),
+		// TODO: Actually provide a useful value here.
+		ExpiresIn: 1,
+		Jti: "fake_jti",
+		RefreshToken: "fake_oauth2_refresh_token",
+		Scope: "openid",
+		TokenType: "bearer",
+	})
+	if err != nil {
+		panic("Unable to encode JSON!")
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	w.Write(str)
+}
+
 func NewHandler(config *ServerConfig) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		BaseHandler(config, w, r)
@@ -74,10 +103,7 @@ func BaseHandler(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
 			RedirectToCallback(w, *config.CallbackUrl, email, rq.Get("state"))
 		}
 	} else if r.URL.Path == urls.Reverse("token") {
-		// TODO: Finish implementing this based on
-		// https://github.com/18F/calc/blob/develop/fake_uaa_provider/views.py
-		w.Header().Set("Content-Type", "text/plain")
-		fmt.Fprintf(w, "TODO: Implement this!")
+		ExchangeCodeForAccessToken(w, r)
 	} else if r.URL.Path == urls.Reverse("svgLogo") {
 		data, err := Asset("data/fake-cloud.gov.svg")
 		if err != nil {
