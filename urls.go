@@ -11,6 +11,7 @@ var Urls = UrlMap{
 	"authorize": "/oauth/authorize",
 	"token": "/oauth/token",
 	"svgLogo": "/fake-cloud.gov.svg",
+	"stylesheet": "/style.css",
 }
 
 func (u UrlMap) Reverse(name string) string {

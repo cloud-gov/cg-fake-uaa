@@ -1,0 +1,54 @@
+#logo {
+  width: 500px;
+}
+
+body {
+  font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  max-width: 640px;
+  margin: 32px auto;
+  text-align: center;
+}
+
+a {
+  color: inherit;
+}
+
+footer {
+  padding-top: 3em;
+  color: gray;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}
+
+.submit-wrapper {
+  margin-top: 1em;
+}
+
+button[type="submit"] {
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 1em;
+  padding: 16px;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  background-color: #1F2C38;
+}
+
+input {
+  padding: 16px;
+  font-family: inherit;
+  font-size: 1em;
+  width: 20em;
+  border: 1px solid lightgray;
+}

@@ -28,6 +28,13 @@ func baseHandler(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
 		}
 		w.Header().Set("Content-Type", "image/svg+xml")
 		fmt.Fprintf(w, "%s", data)
+	} else if r.URL.Path == Urls.Reverse("stylesheet") {
+		data, err := GetAsset("data/style.css")
+		if err != nil {
+			panic("Couldn't find style.css!")
+		}
+		w.Header().Set("Content-Type", "text/css")
+		fmt.Fprintf(w, "%s", data)
 	} else {
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(404)

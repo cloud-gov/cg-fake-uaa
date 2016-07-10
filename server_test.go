@@ -128,6 +128,16 @@ func TestGetSvgLogoWorks(t *testing.T) {
 	assertHeader(t, recorder, "Content-Type", "image/svg+xml")
 }
 
+func TestGetStylesheetWorks(t *testing.T) {
+	recorder := handle(&http.Request{
+		Method: "GET",
+		URL:    Urlify("/style.css"),
+	})
+
+	assertStatus(t, recorder, 200)
+	assertHeader(t, recorder, "Content-Type", "text/css")
+}
+
 func Test404Works(t *testing.T) {
 	recorder := handle(&http.Request{
 		Method: "GET",
