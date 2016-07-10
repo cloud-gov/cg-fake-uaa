@@ -30,6 +30,8 @@ During development, you can define `FAKECLOUDGOV_DEBUG=yup` to make
 the server fetch data files from the `data` directory instead of using
 the files embedded into the executable at build time.
 
+To learn about changing any of the runtime options, run `./fake-cloud.gov -h`.
+
 ## Running Tests
 
 ```
