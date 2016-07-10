@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 )
 
@@ -17,6 +18,13 @@ func assertHeader(t *testing.T, recorder *httptest.ResponseRecorder, header stri
 	if actualValue != value {
 		t.Errorf("Expected header '%s' to be '%s', but it is '%s'",
 			header, value, actualValue)
+	}
+}
+
+func assertBody(t *testing.T, recorder *httptest.ResponseRecorder, value string) {
+	actualValue := recorder.Body.String()
+	if (actualValue != value) {
+		t.Errorf("Expected body '%s', got '%s'", value, actualValue)
 	}
 }
 
@@ -60,6 +68,30 @@ func TestRedirectToCallbackWorks(t *testing.T) {
 	assertStatus(t, recorder, 302)
 	assertHeader(t, recorder, "Location",
 		"http://client/callback?code=foo&state=bar")
+}
+
+func TestTokenErrorsWhenCodeIsEmpty(t *testing.T) {
+	recorder := handle(&http.Request{
+		Method: "POST",
+		URL:    Urlify("/oauth/token"),
+	})
+
+	assertStatus(t, recorder, 400)
+	assertHeader(t, recorder, "Content-Type", "text/plain")
+	assertBody(t, recorder, "'code' is missing or empty")
+}
+
+func TestTokenWorks(t *testing.T) {
+	recorder := handle(&http.Request{
+		Method: "POST",
+		URL:    Urlify("/oauth/token"),
+		PostForm: url.Values{
+			"code": []string{"foo@bar.gov",},
+		},
+	})
+
+	assertStatus(t, recorder, 200)
+	assertHeader(t, recorder, "Content-Type", "application/json")
 }
 
 func TestGetSvgLogoWorks(t *testing.T) {
