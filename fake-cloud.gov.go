@@ -3,30 +3,17 @@ package main
 import (
 	"fmt"
 	"flag"
-	"html/template"
 	"encoding/json"
 	"net/http"
 	"net/url"
-	"math/rand"
 )
-
-var taglines = [...]string{
-	`Welcome to your fake <abbr title="User Account and Authentication">UAA</abbr> provider!`,
-	`The convenience of zero-factor authentication is here.`,
-	`We're like <a href="https://cloud.gov">cloud.gov</a>, but without the security.`,
-}
 
 type UrlMap map[string]string
 
-var urls = UrlMap{
+var Urls = UrlMap{
 	"authorize": "/oauth/authorize",
 	"token": "/oauth/token",
 	"svgLogo": "/fake-cloud.gov.svg",
-}
-
-type LoginPageContext struct {
-	Tagline template.HTML
-	QueryArgs map[string]string
 }
 
 type ServerConfig struct {
@@ -42,39 +29,12 @@ type TokenResponse struct {
 	TokenType    string `json:"token_type"`
 }
 
-func GetRandomTagline() string {
-	n := rand.Intn(len(taglines))
-	return taglines[n]
-}
-
 func (u UrlMap) Reverse(name string) string {
 	result := u[name]
 	if result == "" {
 		panic(fmt.Sprintf("No URL named '%s'!", name))
 	}
 	return result
-}
-
-func RenderLoginPage(w http.ResponseWriter, context *LoginPageContext) {
-	data, err := Asset("data/login.html")
-	if err != nil {
-		panic("Couldn't find login.html!")
-	}
-	s := string(data)
-	t, _ := template.New("login.html").Funcs(template.FuncMap{
-		"reverse": urls.Reverse,
-	}).Parse(s)
-	w.Header().Set("Content-Type", "text/html")
-	t.Execute(w, context)
-}
-
-func RedirectToCallback(w http.ResponseWriter, u url.URL, code string, state string) {
-	q := u.Query()
-	q.Set("code", code)
-	q.Set("state", state)
-	u.RawQuery = q.Encode()
-	w.Header().Set("Location", u.String())
-	w.WriteHeader(302)
 }
 
 func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request) {
@@ -109,27 +69,11 @@ func NewHandler(config *ServerConfig) func(http.ResponseWriter, *http.Request) {
 }
 
 func BaseHandler(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path == urls.Reverse("authorize") && r.Method == "GET" {
-		rq := r.URL.Query()
-		email := rq.Get("email")
-		// TODO: Ensure 'client_id' is in GET params.
-		// TODO: Ensure 'state' is in GET params.
-		// TODO: Ensure 'response_type' is 'code'.
-		if len(email) == 0 {
-			queryArgs := make(map[string]string)
-			for k, v := range r.URL.Query() {
-				queryArgs[k] = v[0]
-			}
-			RenderLoginPage(w, &LoginPageContext{
-				Tagline: template.HTML(GetRandomTagline()),
-				QueryArgs: queryArgs,
-			})
-		} else {
-			RedirectToCallback(w, *config.CallbackUrl, email, rq.Get("state"))
-		}
-	} else if r.URL.Path == urls.Reverse("token") && r.Method == "POST" {
+	if r.URL.Path == Urls.Reverse("authorize") && r.Method == "GET" {
+		Authorize(config, w, r)
+	} else if r.URL.Path == Urls.Reverse("token") && r.Method == "POST" {
 		ExchangeCodeForAccessToken(w, r)
-	} else if r.URL.Path == urls.Reverse("svgLogo") {
+	} else if r.URL.Path == Urls.Reverse("svgLogo") {
 		data, err := Asset("data/fake-cloud.gov.svg")
 		if err != nil {
 			panic("Couldn't find fake-cloud.gov.svg!")
@@ -166,8 +110,8 @@ func main() {
 	})
 
 	fmt.Printf("OAuth2 callback URL: %s\n", callbackUrl)
-	fmt.Printf("OAuth2 authorize URL: http://localhost:%d%s\n", *portPtr, urls.Reverse("authorize"))
-	fmt.Printf("OAuth2 token URL: http://localhost:%d%s\n", *portPtr, urls.Reverse("token"))
+	fmt.Printf("OAuth2 authorize URL: http://localhost:%d%s\n", *portPtr, Urls.Reverse("authorize"))
+	fmt.Printf("OAuth2 token URL: http://localhost:%d%s\n", *portPtr, Urls.Reverse("token"))
 	fmt.Printf("\nListening on port %d.\n", *portPtr)
 
 	http.HandleFunc("/", handler)
