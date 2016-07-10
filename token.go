@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -51,9 +52,14 @@ func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request) {
 		panic(fmt.Sprintf("Unable to create JSON web token! %v", err))
 	}
 
+	tokenDuration, err := time.ParseDuration("12h")
+	if (err != nil) {
+		panic("Unable to parse duration!")
+	}
+
 	str, err := json.Marshal(tokenResponse{
 		AccessToken:  accessTokenString,
-		ExpiresIn:    1, // TODO: Actually provide a useful value here.
+		ExpiresIn:    int64(tokenDuration.Seconds()),
 		Jti:          "fake_jti",
 		RefreshToken: "fake_oauth2_refresh_token",
 		Scope:        "openid",
