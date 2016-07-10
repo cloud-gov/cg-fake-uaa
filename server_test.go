@@ -114,6 +114,8 @@ func TestTokenWorks(t *testing.T) {
 
 	assertStatus(t, recorder, 200)
 	assertHeader(t, recorder, "Content-Type", "application/json")
+
+	// TODO: Examine the response, decode the access token and ensure it's what we expect.
 }
 
 func TestGetSvgLogoWorks(t *testing.T) {
