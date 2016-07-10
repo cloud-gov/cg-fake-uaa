@@ -8,9 +8,9 @@ import (
 type UrlMap map[string]string
 
 var Urls = UrlMap{
-	"authorize": "/oauth/authorize",
-	"token": "/oauth/token",
-	"svgLogo": "/fake-cloud.gov.svg",
+	"authorize":  "/oauth/authorize",
+	"token":      "/oauth/token",
+	"svgLogo":    "/fake-cloud.gov.svg",
 	"stylesheet": "/style.css",
 }
 

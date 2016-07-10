@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"net/http"
 	"time"
-	"github.com/dgrijalva/jwt-go"
 )
 
 type tokenResponse struct {
@@ -22,7 +22,7 @@ func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request) {
 	// TODO: Ensure 'grant_type' is 'authorization_code'.
 	// TODO: Ensure 'response_type' is 'token'.
 
-	errBadRequest := func (message string) {
+	errBadRequest := func(message string) {
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(400)
 		w.Write([]byte(message))
@@ -42,7 +42,7 @@ func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tokenDuration, err := time.ParseDuration("12h")
-	if (err != nil) {
+	if err != nil {
 		panic("Unable to parse duration!")
 	}
 	tokenDurationSeconds := int64(tokenDuration.Seconds())
@@ -56,23 +56,23 @@ func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request) {
 			"openid",
 			clientId,
 		},
-		"auth_time": authTime,
-		"azp": clientId,
-		"cid": clientId,
-		"client_id": clientId,
-		"email": email,
-		"exp": authTime + tokenDurationSeconds,
+		"auth_time":  authTime,
+		"azp":        clientId,
+		"cid":        clientId,
+		"client_id":  clientId,
+		"email":      email,
+		"exp":        authTime + tokenDurationSeconds,
 		"grant_type": "authorization_code",
-		"iat": authTime,
-		"iss": "https://uaa.cloud.gov/oauth/token",
-		"jti": "fake_jti",
-		"origin": "gsa.gov",
-		"rev_sig": "9ad72122",
-		"scope": []string{"openid"},
-		"sub": "12345678-1234-1234-1234-123456789abc",
-		"user_id": "12345678-1234-1234-1234-123456789abc",
-		"user_name": email,
-		"zid": "uaa",
+		"iat":        authTime,
+		"iss":        "https://uaa.cloud.gov/oauth/token",
+		"jti":        "fake_jti",
+		"origin":     "gsa.gov",
+		"rev_sig":    "9ad72122",
+		"scope":      []string{"openid"},
+		"sub":        "12345678-1234-1234-1234-123456789abc",
+		"user_id":    "12345678-1234-1234-1234-123456789abc",
+		"user_name":  email,
+		"zid":        "uaa",
 	})
 
 	// The client won't need to verify this because it will be communicating
@@ -82,7 +82,7 @@ func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request) {
 	// https://developers.google.com/identity/protocols/OpenIDConnect#obtainuserinfo
 
 	accessTokenString, err := accessToken.SignedString([]byte("unused secret key (for verification)"))
-	if (err != nil) {
+	if err != nil {
 		panic(fmt.Sprintf("Unable to create JSON web token! %v", err))
 	}
 

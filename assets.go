@@ -21,13 +21,13 @@ func GetAsset(path string) []byte {
 	var err error
 
 	debug := os.Getenv("FAKECLOUDGOV_DEBUG")
-	if (debug == "") {
+	if debug == "" {
 		data, err = Asset(path)
 	} else {
 		data, err = readFile(path)
 	}
 
-	if (err != nil) {
+	if err != nil {
 		panic(fmt.Sprintf("could not open %s!", path))
 	}
 

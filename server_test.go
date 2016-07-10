@@ -82,8 +82,8 @@ func TestRedirectToCallbackWorks(t *testing.T) {
 
 func assertTokenError(t *testing.T, postForm url.Values, body string) {
 	recorder := handle(&http.Request{
-		Method: "POST",
-		URL:    Urlify("/oauth/token"),
+		Method:   "POST",
+		URL:      Urlify("/oauth/token"),
 		PostForm: postForm,
 	})
 
@@ -98,7 +98,7 @@ func TestTokenErrorsWhenCodeIsEmpty(t *testing.T) {
 
 func TestTokenErrorsWhenClientIdIsEmpty(t *testing.T) {
 	assertTokenError(t, url.Values{
-		"code": []string{"foo@bar.gov",},
+		"code": []string{"foo@bar.gov"},
 	}, "'client_id' is missing or empty")
 }
 
@@ -107,7 +107,7 @@ func TestTokenWorks(t *testing.T) {
 		Method: "POST",
 		URL:    Urlify("/oauth/token"),
 		PostForm: url.Values{
-			"code": []string{"foo@bar.gov",},
+			"code":      []string{"foo@bar.gov"},
 			"client_id": []string{"baz"},
 		},
 	})
