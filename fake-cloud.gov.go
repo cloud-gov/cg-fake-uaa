@@ -74,13 +74,12 @@ func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("code")
 	accessToken := fmt.Sprintf("TODO: build jwt access token for %s", email)
 	str, err := json.Marshal(TokenResponse{
-		AccessToken: accessToken,
-		// TODO: Actually provide a useful value here.
-		ExpiresIn: 1,
-		Jti: "fake_jti",
+		AccessToken:  accessToken,
+		ExpiresIn:    1, // TODO: Actually provide a useful value here.
+		Jti:          "fake_jti",
 		RefreshToken: "fake_oauth2_refresh_token",
-		Scope: "openid",
-		TokenType: "bearer",
+		Scope:        "openid",
+		TokenType:    "bearer",
 	})
 	if err != nil {
 		panic("Unable to encode JSON!")
