@@ -35,3 +35,19 @@ the files embedded into the executable at build time.
 ```
 go test
 ```
+
+## Running the Example Client
+
+An example OAuth2 client is in the `example-client` directory. To use
+it, run:
+
+```
+cd example-client
+npm install
+npm start
+```
+
+Then visit http://localhost:8000/.
+
+Note that the server, `./fake-cloud.gov`, must also be running in order
+for the client to work.
