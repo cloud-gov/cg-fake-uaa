@@ -23,7 +23,7 @@ func assertHeader(t *testing.T, recorder *httptest.ResponseRecorder, header stri
 func handle(request *http.Request) *httptest.ResponseRecorder {
 	recorder := httptest.NewRecorder()
 
-	handler := NewHandler(&ServerConfig{
+	handler := NewServerHandler(&ServerConfig{
 		CallbackUrl: Urlify("http://client/callback"),
 	})
 	handler(recorder, request)

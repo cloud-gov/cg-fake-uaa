@@ -10,7 +10,7 @@ type ServerConfig struct {
 	CallbackUrl *url.URL
 }
 
-func NewHandler(config *ServerConfig) func(http.ResponseWriter, *http.Request) {
+func NewServerHandler(config *ServerConfig) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		baseHandler(config, w, r)
 	}

@@ -14,7 +14,7 @@ func main() {
 
 	flag.Parse()
 
-	handler := NewHandler(&ServerConfig{
+	handler := NewServerHandler(&ServerConfig{
 		CallbackUrl: Urlify(callbackUrl),
 	})
 
