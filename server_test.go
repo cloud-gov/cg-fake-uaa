@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"regexp"
 	"testing"
 )
 
@@ -23,8 +24,16 @@ func assertHeader(t *testing.T, recorder *httptest.ResponseRecorder, header stri
 
 func assertBody(t *testing.T, recorder *httptest.ResponseRecorder, value string) {
 	actualValue := recorder.Body.String()
-	if (actualValue != value) {
+	if actualValue != value {
 		t.Errorf("Expected body '%s', got '%s'", value, actualValue)
+	}
+}
+
+func assertBodyMatches(t *testing.T, recorder *httptest.ResponseRecorder, restr string) {
+	actualValue := recorder.Body.String()
+	re := regexp.MustCompile(restr)
+	if !re.MatchString(actualValue) {
+		t.Errorf("Expected body '%s' to match '%s'", actualValue, restr)
 	}
 }
 
@@ -57,6 +66,7 @@ func TestLoginPageWorksWithQueryArgs(t *testing.T) {
 
 	assertStatus(t, recorder, 200)
 	assertHeader(t, recorder, "Content-Type", "text/html")
+	assertBodyMatches(t, recorder, `type="hidden" name="state" value="blah"`)
 }
 
 func TestRedirectToCallbackWorks(t *testing.T) {
