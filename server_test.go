@@ -80,15 +80,26 @@ func TestRedirectToCallbackWorks(t *testing.T) {
 		"http://client/callback?code=foo&state=bar")
 }
 
-func TestTokenErrorsWhenCodeIsEmpty(t *testing.T) {
+func assertTokenError(t *testing.T, postForm url.Values, body string) {
 	recorder := handle(&http.Request{
 		Method: "POST",
 		URL:    Urlify("/oauth/token"),
+		PostForm: postForm,
 	})
 
 	assertStatus(t, recorder, 400)
 	assertHeader(t, recorder, "Content-Type", "text/plain")
-	assertBody(t, recorder, "'code' is missing or empty")
+	assertBody(t, recorder, body)
+}
+
+func TestTokenErrorsWhenCodeIsEmpty(t *testing.T) {
+	assertTokenError(t, url.Values{}, "'code' is missing or empty")
+}
+
+func TestTokenErrorsWhenClientIdIsEmpty(t *testing.T) {
+	assertTokenError(t, url.Values{
+		"code": []string{"foo@bar.gov",},
+	}, "'client_id' is missing or empty")
 }
 
 func TestTokenWorks(t *testing.T) {
@@ -97,6 +108,7 @@ func TestTokenWorks(t *testing.T) {
 		URL:    Urlify("/oauth/token"),
 		PostForm: url.Values{
 			"code": []string{"foo@bar.gov",},
+			"client_id": []string{"baz"},
 		},
 	})
 

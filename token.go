@@ -18,7 +18,6 @@ type tokenResponse struct {
 }
 
 func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request) {
-	// TODO: Ensure 'client_id' is in POST args.
 	// TODO: Ensure 'client_secret' is in POST args.
 	// TODO: Ensure 'grant_type' is 'authorization_code'.
 	// TODO: Ensure 'response_type' is 'token'.
@@ -30,15 +29,50 @@ func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	email := r.PostFormValue("code")
+	clientId := r.PostFormValue("client_id")
 
 	if email == "" {
 		errBadRequest("'code' is missing or empty")
 		return
 	}
 
+	if clientId == "" {
+		errBadRequest("'client_id' is missing or empty")
+		return
+	}
+
+	tokenDuration, err := time.ParseDuration("12h")
+	if (err != nil) {
+		panic("Unable to parse duration!")
+	}
+	tokenDurationSeconds := int64(tokenDuration.Seconds())
+
+	authTime := time.Now().Unix()
+
+	// TODO: Some of these fields have been hard-coded. Might be better to use "real" values.
+
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"aud": []string{
+			"openid",
+			clientId,
+		},
+		"auth_time": authTime,
+		"azp": clientId,
+		"cid": clientId,
+		"client_id": clientId,
 		"email": email,
-		// TODO: fill in remaining values from https://github.com/18F/calc/blob/develop/fake_uaa_provider/views.py
+		"exp": authTime + tokenDurationSeconds,
+		"grant_type": "authorization_code",
+		"iat": authTime,
+		"iss": "https://uaa.cloud.gov/oauth/token",
+		"jti": "fake_jti",
+		"origin": "gsa.gov",
+		"rev_sig": "9ad72122",
+		"scope": []string{"openid"},
+		"sub": "12345678-1234-1234-1234-123456789abc",
+		"user_id": "12345678-1234-1234-1234-123456789abc",
+		"user_name": email,
+		"zid": "uaa",
 	})
 
 	// The client won't need to verify this because it will be communicating
@@ -52,14 +86,9 @@ func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request) {
 		panic(fmt.Sprintf("Unable to create JSON web token! %v", err))
 	}
 
-	tokenDuration, err := time.ParseDuration("12h")
-	if (err != nil) {
-		panic("Unable to parse duration!")
-	}
-
 	str, err := json.Marshal(tokenResponse{
 		AccessToken:  accessTokenString,
-		ExpiresIn:    int64(tokenDuration.Seconds()),
+		ExpiresIn:    tokenDurationSeconds,
 		Jti:          "fake_jti",
 		RefreshToken: "fake_oauth2_refresh_token",
 		Scope:        "openid",
