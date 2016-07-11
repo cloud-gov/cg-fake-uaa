@@ -19,6 +19,10 @@ footer {
   color: gray;
 }
 
+strong {
+  font-weight: 700;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -51,4 +55,8 @@ input {
   font-size: 1em;
   width: 20em;
   border: 1px solid lightgray;
+}
+
+.warning {
+  color: crimson;
 }

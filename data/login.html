@@ -18,6 +18,9 @@
       <button type="submit">Log In</button>
     </div>
   </form>
+  {{ range $warning := .Warnings }}
+    <p class="warning"><strong>Warning:</strong> {{ $warning }}</p>
+  {{ end }}
   <footer>
     This is not the real <a href="https://cloud.gov/">cloud.gov</a> and
     is intended for development and debugging purposes only.
