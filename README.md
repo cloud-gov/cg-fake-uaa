@@ -1,4 +1,4 @@
-fake-cloud.gov is a fake User Account and Authentication ([UAA][]) server for
+This is a fake User Account and Authentication ([UAA][]) server for
 cloud.gov, useful for development and debugging.
 
 ## Build Requirements
