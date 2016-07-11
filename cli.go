@@ -15,11 +15,11 @@ func main() {
 	portPtr := flag.Int("port", 8080, "Port to listen on")
 	flag.StringVar(&callbackUrl, "callback-url", "http://localhost:8000/auth/callback", "OAuth2 Callback URL")
 
-	flagNoColor := flag.Bool("no-color", false, "Disable color output")
+	noColorPtr := flag.Bool("no-color", false, "Disable color output")
 
 	flag.Parse()
 
-	if *flagNoColor {
+	if *noColorPtr {
 		color.NoColor = true
 	}
 
