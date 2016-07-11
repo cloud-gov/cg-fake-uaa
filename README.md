@@ -1,4 +1,4 @@
-fake-cloud.gov is a fake User Account and Authentication (UAA) server for
+fake-cloud.gov is a fake User Account and Authentication ([UAA][]) server for
 cloud.gov, useful for development and debugging.
 
 ## Build Requirements
@@ -68,4 +68,5 @@ The fake server currently has a lot of limitations, most notably:
   only really built for giving you the logged-in user's email
   address.
 
+[UAA]: https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst
 [`openid` scope]: https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst#scopes-authorized-by-the-uaa
