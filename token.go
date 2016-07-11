@@ -18,10 +18,6 @@ type tokenResponse struct {
 }
 
 func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request) {
-	// TODO: Ensure 'client_secret' is in POST args.
-	// TODO: Ensure 'grant_type' is 'authorization_code'.
-	// TODO: Ensure 'response_type' is 'token'.
-
 	errBadRequest := func(message string) {
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(400)
@@ -38,6 +34,21 @@ func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request) {
 
 	if clientId == "" {
 		errBadRequest("'client_id' is missing or empty")
+		return
+	}
+
+	if r.PostFormValue("client_secret") == "" {
+		errBadRequest("'client_secret' is missing or empty")
+		return
+	}
+
+	if r.PostFormValue("grant_type") != "authorization_code" {
+		errBadRequest("'grant_type' is expected to be 'authorization_code'")
+		return
+	}
+
+	if r.PostFormValue("response_type") != "token" {
+		errBadRequest("'response_type' is expected to be 'token'")
 		return
 	}
 

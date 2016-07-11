@@ -107,8 +107,11 @@ func TestTokenWorks(t *testing.T) {
 		Method: "POST",
 		URL:    Urlify("/oauth/token"),
 		PostForm: url.Values{
-			"code":      []string{"foo@bar.gov"},
-			"client_id": []string{"baz"},
+			"code":          []string{"foo@bar.gov"},
+			"client_id":     []string{"baz"},
+			"client_secret": []string{"baz"},
+			"grant_type":    []string{"authorization_code"},
+			"response_type": []string{"token"},
 		},
 	})
 
