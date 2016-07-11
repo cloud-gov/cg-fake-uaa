@@ -1,6 +1,8 @@
 This is a fake User Account and Authentication ([UAA][]) server for
 cloud.gov, useful for development and debugging.
 
+![Screenshot](https://cloud.githubusercontent.com/assets/124687/16729463/9cd1b676-473a-11e6-98f1-588308c0a213.png)
+
 ## Build Requirements
 
 * Go 1.6
