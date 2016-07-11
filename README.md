@@ -3,6 +3,30 @@ cloud.gov, useful for development and debugging.
 
 ![Screenshot](https://cloud.githubusercontent.com/assets/124687/16729463/9cd1b676-473a-11e6-98f1-588308c0a213.png)
 
+## Motivation
+
+[Authenticating with cloud.gov][cgauth] can be challenging when developing
+an app:
+
+* It can be difficult or impossible to log in as multiple different
+  users to manually test your application's functionality.
+* If you're offline or on a spotty internet connection, authenticating
+  with cloud.gov may be challenging.
+* Because logging into cloud.gov usually involves 2 factor authentication,
+  logging in can be slow and cumbersome, which can slow down
+  development.
+* At present, registering a new client ID, client secret, and callback URL
+  with cloud.gov requires inconveniencing a cloud.gov administrator, as
+  there's not yet a self-serve option for registering new apps.
+* Debugging problems with the OAuth2 handshake can be difficult because
+  you don't have much visibility into cloud.gov's internal state.
+
+The fake UAA is intended to solve these problems by making it easy to
+host your own UAA server on your local system.  The simplicity of its
+implementation and its debugging messages allow developers to easily
+understand what's going on during the OAuth2 handshake.  It also makes
+it dead simple to log in as multiple different users.
+
 ## Build Requirements
 
 * Go 1.6
@@ -70,5 +94,6 @@ The fake server currently has a lot of limitations, most notably:
   only really built for giving you the logged-in user's email
   address.
 
+[cgauth]: https://docs.cloud.gov/apps/leveraging-authentication/
 [UAA]: https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst
 [`openid` scope]: https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst#scopes-authorized-by-the-uaa
