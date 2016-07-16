@@ -29,6 +29,17 @@ implementation and its debugging messages allow developers to easily
 understand what's going on during the OAuth2 handshake.  It also makes
 it dead simple to log in as multiple different users.
 
+## Usage
+
+To use this fake UAA, just [download the latest release][download],
+uncompress the archive, and run the binary in it:
+
+```
+./fake-cloud.gov
+```
+
+The output of this command will help you set things up from there.
+
 ## Build Requirements
 
 * Go 1.6
@@ -36,7 +47,7 @@ it dead simple to log in as multiple different users.
 Once built, the executable binary is fully self-contained and can be
 distributed freely.
 
-## Quick Start
+## Development Quick Start
 
 First, get dependencies:
 
@@ -96,6 +107,7 @@ The fake server currently has a lot of limitations, most notably:
   only really built for giving you the logged-in user's email
   address.
 
+[download]: https://github.com/18F/cg-fake-uaa/releases
 [cgauth]: https://docs.cloud.gov/apps/leveraging-authentication/
 [UAA]: https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst
 [`openid` scope]: https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst#scopes-authorized-by-the-uaa
