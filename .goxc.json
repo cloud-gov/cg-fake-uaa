@@ -1,0 +1,15 @@
+{
+  "Tasks": [
+    "default",
+    "publish-github"
+  ],
+  "BuildConstraints": "windows,darwin",
+  "PackageVersion": "1.0.0",
+  "TaskSettings": {
+    "publish-github": {
+      "owner": "18F",
+      "repository": "cg-fake-uaa"
+    }
+  },
+  "ConfigVersion": "0.9"
+}
