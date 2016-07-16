@@ -1,0 +1,11 @@
+language: go
+sudo: required
+go:
+  - 1.6.2
+before_install:
+  - go get -u github.com/jteeuwen/go-bindata/...
+script:
+  - go get -d ./...
+  - go generate
+  - go build
+  - go test
