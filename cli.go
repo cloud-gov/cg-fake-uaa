@@ -30,6 +30,7 @@ func main() {
 	authorizeUrl := fmt.Sprintf("http://localhost:%d%s", *portPtr, Urls.Reverse("authorize"))
 	tokenUrl := fmt.Sprintf("http://localhost:%d%s", *portPtr, Urls.Reverse("token"))
 
+	fmt.Fprintf(color.Output, "Greetings from fake-cloud.gov version %s.\n\n", GetVersion())
 	fmt.Fprintf(color.Output, "My OAuth2 authorize URL is %s.\n", cyan(authorizeUrl))
 	fmt.Fprintf(color.Output, "My OAuth2 token URL is %s.\n", cyan(tokenUrl))
 	fmt.Fprintf(color.Output, "Your client's callback URL is %s.\n", cyan(callbackUrl))

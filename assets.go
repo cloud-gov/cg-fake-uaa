@@ -1,4 +1,4 @@
-//go:generate go-bindata data/
+//go:generate go-bindata .goxc.json data/
 
 package main
 
