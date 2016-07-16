@@ -3,7 +3,8 @@
 <link rel="stylesheet" href="{{ reverse "stylesheet" }}">
 <title>Fake cloud.gov Login</title>
 <body>
-  <img src="{{ reverse "svgLogo" }}" id="logo">
+  <img src="{{ reverse "svgLogo" }}" id="logo" alt="Fake cloud.gov">
+  <div class="version">v{{ .Version }}</div>
   <p>{{ .Tagline }}</p>
   <p>
     Just enter an email address below and we'll log you in.

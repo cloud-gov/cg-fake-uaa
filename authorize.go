@@ -20,6 +20,7 @@ var taglines = [...]string{
 type loginPageContext struct {
 	Tagline   template.HTML
 	QueryArgs map[string]string
+	Version   string
 	Warnings  []template.HTML
 }
 
@@ -75,6 +76,7 @@ func Authorize(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
 		renderLoginPage(w, &loginPageContext{
 			Tagline:   template.HTML(getRandomTagline()),
 			Warnings:  warnings,
+			Version:   GetVersion(),
 			QueryArgs: queryArgs,
 		})
 	} else {

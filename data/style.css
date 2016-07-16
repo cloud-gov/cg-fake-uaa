@@ -23,6 +23,14 @@ strong {
   font-weight: 700;
 }
 
+.version {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 0.75rem;
+  color: gray;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
