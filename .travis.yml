@@ -4,8 +4,4 @@ go:
   - 1.6.2
 before_install:
   - go get -u github.com/jteeuwen/go-bindata/...
-script:
   - go generate
-  - go get -d ./...
-  - go build
-  - go test
