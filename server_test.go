@@ -37,15 +37,40 @@ func assertBodyMatches(t *testing.T, recorder *httptest.ResponseRecorder, restr 
 	}
 }
 
+func assertError(t *testing.T, err error, message string) {
+	if (err.Error() != message) {
+		t.Errorf("Expected error '%s' to be '%s'", err.Error(), message)
+	}
+}
+
 func handle(request *http.Request) *httptest.ResponseRecorder {
 	recorder := httptest.NewRecorder()
 
-	handler := NewServerHandler(&ServerConfig{
+	handler, err := NewServerHandler(&ServerConfig{
 		CallbackUrl: Urlify("http://client/callback"),
 	})
+
+	if (err != nil)  {
+		panic(err.Error())
+	}
+
 	handler(recorder, request)
 
 	return recorder
+}
+
+func TestNewServerHandlerReturnsErrWhenConfigIsNil(t *testing.T) {
+	_, err := NewServerHandler(nil)
+
+	assertError(t, err, "config must be non-nil")
+}
+
+func TestNewServerHandlerReturnsErrWhenConfigCallbackUrlIsNil(t *testing.T) {
+	_, err := NewServerHandler(&ServerConfig{
+		CallbackUrl: nil,
+	})
+
+	assertError(t, err, "config.CallbackUrl must be non-nil")
 }
 
 func TestLoginPageWorksWithoutQueryArgs(t *testing.T) {
