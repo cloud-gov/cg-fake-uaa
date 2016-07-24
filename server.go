@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -10,10 +11,18 @@ type ServerConfig struct {
 	CallbackUrl *url.URL
 }
 
-func NewServerHandler(config *ServerConfig) func(http.ResponseWriter, *http.Request) {
+func NewServerHandler(config *ServerConfig) (func(http.ResponseWriter, *http.Request), error) {
+	if (config == nil) {
+		return nil, errors.New("config must be non-nil")
+	}
+
+	if (config.CallbackUrl == nil) {
+		return nil, errors.New("config.CallbackUrl must be non-nil")
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		baseHandler(config, w, r)
-	}
+	}, nil
 }
 
 func baseHandler(config *ServerConfig, w http.ResponseWriter, r *http.Request) {

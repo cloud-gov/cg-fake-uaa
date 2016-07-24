@@ -23,9 +23,13 @@ func main() {
 		color.NoColor = true
 	}
 
-	handler := NewServerHandler(&ServerConfig{
+	handler, err := NewServerHandler(&ServerConfig{
 		CallbackUrl: Urlify(callbackUrl),
 	})
+
+	if (err != nil) {
+		panic(fmt.Sprintf("Error when creating server handler:%s", err))
+	}
 
 	authorizeUrl := fmt.Sprintf("http://localhost:%d%s", *portPtr, Urls.Reverse("authorize"))
 	tokenUrl := fmt.Sprintf("http://localhost:%d%s", *portPtr, Urls.Reverse("token"))
