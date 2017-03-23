@@ -67,7 +67,7 @@ go build
 Finally, run the server:
 
 ```
-./fake-cloud.gov
+./cg-fake-uaa
 ```
 
 During development, you can define `FAKECLOUDGOV_DEBUG=yup` to make
