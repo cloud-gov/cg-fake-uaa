@@ -5,24 +5,30 @@ Here's how to issue a new release.
 3. Make a `.goxc.local.json` file in the root directory of your
    repository checkout with the following content:
 
-```json
-{
-        "Tasks": [
-                "default",
-                "publish-github"
-        ],
-        "TaskSettings": {
-                "publish-github": {
-                        "apikey": "<PUT YOUR API KEY HERE>"
-                }
-        },
-        "ConfigVersion": "0.9"
-}
-```
+   ```json
+   {
+           "Tasks": [
+                   "default",
+                   "publish-github"
+           ],
+           "TaskSettings": {
+                   "publish-github": {
+                           "apikey": "<PUT YOUR API KEY HERE>"
+                   }
+           },
+           "ConfigVersion": "0.9"
+   }
+   ```
 
 4. Edit `.goxc.json` and increment the `PackageVersion`.
-5. Commit your changes to the repository; `goxc` will automatically
-   tag your current revision as `PackageVersion` on GitHub.
+5. Tag your version and push it to GitHub. For instance, if you're
+   releasing v1.0.4, do:
+
+   ```
+   git tag -a v1.0.4
+   git push origin v1.0.4
+   ```
+
 6. Run `go generate`.
 7. Run `goxc`.
 
