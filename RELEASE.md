@@ -5,7 +5,7 @@ Here's how to issue a new release.
 3. Make a `.goxc.local.json` file in the root directory of your
    repository checkout with the following content:
 
-```
+```json
 {
         "Tasks": [
                 "default",
@@ -21,8 +21,10 @@ Here's how to issue a new release.
 ```
 
 4. Edit `.goxc.json` and increment the `PackageVersion`.
-5. Run `go generate`.
-6. Run `goxc`.
+5. Commit your changes to the repository; `goxc` will automatically
+   tag your current revision as `PackageVersion` on GitHub.
+6. Run `go generate`.
+7. Run `goxc`.
 
 [goxc]: https://github.com/laher/goxc
 [personal access token]: https://github.com/settings/tokens
