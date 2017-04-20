@@ -1,12 +1,25 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"regexp"
 	"testing"
 )
+
+func assertInt64(t *testing.T, a int64, b int64) {
+	if (a != b) {
+		t.Errorf("Expected '%d' == '%d'", a, b);
+	}
+}
+
+func assertString(t *testing.T, a string, b string) {
+	if (a != b) {
+		t.Errorf("Expected '%s' == '%s'", a, b);
+	}
+}
 
 func assertStatus(t *testing.T, recorder *httptest.ResponseRecorder, code int) {
 	if recorder.Code != code {
@@ -150,22 +163,36 @@ func TestRefreshAccessTokenErrorsWhenRefreshTokenIsMalformed(t *testing.T) {
 	}, "'refresh_token' is missing or malformed")	
 }
 
-func TestRefreshAccessTokenWorks(t *testing.T) {
+func GetTokenResponse(t *testing.T, postForm url.Values, response *tokenResponse) {
 	recorder := handle(&http.Request{
 		Method: "POST",
 		URL:    Urlify("/oauth/token"),
-		PostForm: url.Values{
-			"client_id":     []string{"baz"},
-			"client_secret": []string{"baz"},
-			"grant_type":    []string{"refresh_token"},
-			"refresh_token": []string{"fake_oauth2_refresh_token:foo@bar.com"},
-		},
+		PostForm: postForm,
 	})
 
 	assertStatus(t, recorder, 200)
 	assertHeader(t, recorder, "Content-Type", "application/json")
 
-	// TODO: Examine the response, decode the access token and ensure it's what we expect.
+	err := json.Unmarshal(recorder.Body.Bytes(), &response)
+
+	if err != nil {
+		t.Errorf("Error unmarshaling response: %s", err.Error())
+	}
+}
+
+func TestRefreshAccessTokenWorks(t *testing.T) {
+	var response tokenResponse
+
+	GetTokenResponse(t, url.Values{
+		"client_id":     []string{"baz"},
+		"client_secret": []string{"baz"},
+		"grant_type":    []string{"refresh_token"},
+		"refresh_token": []string{"fake_oauth2_refresh_token:foo@bar.com"},
+	}, &response)
+
+	assertString(t, response.RefreshToken, "fake_oauth2_refresh_token:foo@bar.com")
+
+	// TODO: Decode the access token and ensure it's what we expect.
 }
 
 func TestExchangeCodeForAccessTokenErrorsWhenClientIdIsEmpty(t *testing.T) {
@@ -175,22 +202,20 @@ func TestExchangeCodeForAccessTokenErrorsWhenClientIdIsEmpty(t *testing.T) {
 }
 
 func TestExchangeCodeForAccessTokenWorks(t *testing.T) {
-	recorder := handle(&http.Request{
-		Method: "POST",
-		URL:    Urlify("/oauth/token"),
-		PostForm: url.Values{
-			"code":          []string{"foo@bar.gov"},
-			"client_id":     []string{"baz"},
-			"client_secret": []string{"baz"},
-			"grant_type":    []string{"authorization_code"},
-			"response_type": []string{"token"},
-		},
-	})
+	var response tokenResponse
 
-	assertStatus(t, recorder, 200)
-	assertHeader(t, recorder, "Content-Type", "application/json")
+	GetTokenResponse(t, url.Values{
+		"code":          []string{"foo@bar.gov"},
+		"client_id":     []string{"baz"},
+		"client_secret": []string{"baz"},
+		"grant_type":    []string{"authorization_code"},
+		"response_type": []string{"token"},
+	}, &response)
 
-	// TODO: Examine the response, decode the access token and ensure it's what we expect.
+	assertString(t, response.RefreshToken, "fake_oauth2_refresh_token:foo@bar.gov")
+	assertInt64(t, response.ExpiresIn, 10 * 60)
+
+	// TODO: Decode the access token and ensure it's what we expect.
 }
 
 func TestGetSvgLogoWorks(t *testing.T) {
