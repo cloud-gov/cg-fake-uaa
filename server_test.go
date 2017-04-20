@@ -7,7 +7,25 @@ import (
 	"net/url"
 	"regexp"
 	"testing"
+	"github.com/dgrijalva/jwt-go"
 )
+
+type ParsedTokenResponse struct {
+	AccessToken AccessTokenClaims
+	ExpiresIn int64
+	Jti string
+	RefreshToken string
+	Scope string
+	TokenType string
+}
+
+type AccessTokenClaims struct {
+	Aud []string `json:"aud"`
+	Scope []string `json:"scope"`
+	Username string `json:"user_name"`
+	Email string `json:"email"`
+	jwt.StandardClaims
+}
 
 func assertInt64(t *testing.T, a int64, b int64) {
 	if (a != b) {
@@ -163,7 +181,7 @@ func TestRefreshAccessTokenErrorsWhenRefreshTokenIsMalformed(t *testing.T) {
 	}, "'refresh_token' is missing or malformed")	
 }
 
-func GetTokenResponse(t *testing.T, postForm url.Values, response *tokenResponse) {
+func GetTokenResponse(t *testing.T, postForm url.Values, response *ParsedTokenResponse) {
 	recorder := handle(&http.Request{
 		Method: "POST",
 		URL:    Urlify("/oauth/token"),
@@ -173,15 +191,43 @@ func GetTokenResponse(t *testing.T, postForm url.Values, response *tokenResponse
 	assertStatus(t, recorder, 200)
 	assertHeader(t, recorder, "Content-Type", "application/json")
 
-	err := json.Unmarshal(recorder.Body.Bytes(), &response)
+	var rawResponse tokenResponse
+
+	err := json.Unmarshal(recorder.Body.Bytes(), &rawResponse)
 
 	if err != nil {
 		t.Errorf("Error unmarshaling response: %s", err.Error())
 	}
+
+	response.ExpiresIn = rawResponse.ExpiresIn
+	response.Jti = rawResponse.Jti
+	response.RefreshToken = rawResponse.RefreshToken
+	response.Scope = rawResponse.Scope
+	response.TokenType = rawResponse.TokenType
+
+	token, err := jwt.ParseWithClaims(rawResponse.AccessToken, &AccessTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte("unused secret key (for verification)"), nil
+	})
+
+	if err != nil {
+		t.Errorf("Error parsing access token JWT: %s", err.Error())
+	}
+
+	if !token.Valid {
+		t.Errorf("Access token JWT is invalid")
+	}
+
+	claims, ok := token.Claims.(*AccessTokenClaims)
+
+	if !ok {
+		t.Errorf("Claims are not OK")
+	}
+
+	response.AccessToken = *claims
 }
 
 func TestRefreshAccessTokenWorks(t *testing.T) {
-	var response tokenResponse
+	var response ParsedTokenResponse
 
 	GetTokenResponse(t, url.Values{
 		"client_id":     []string{"baz"},
@@ -191,8 +237,8 @@ func TestRefreshAccessTokenWorks(t *testing.T) {
 	}, &response)
 
 	assertString(t, response.RefreshToken, "fake_oauth2_refresh_token:foo@bar.com")
-
-	// TODO: Decode the access token and ensure it's what we expect.
+	assertString(t, response.AccessToken.Username, "foo@bar.com")
+	assertString(t, response.AccessToken.Email, "foo@bar.com")
 }
 
 func TestExchangeCodeForAccessTokenErrorsWhenClientIdIsEmpty(t *testing.T) {
@@ -202,7 +248,7 @@ func TestExchangeCodeForAccessTokenErrorsWhenClientIdIsEmpty(t *testing.T) {
 }
 
 func TestExchangeCodeForAccessTokenWorks(t *testing.T) {
-	var response tokenResponse
+	var response ParsedTokenResponse
 
 	GetTokenResponse(t, url.Values{
 		"code":          []string{"foo@bar.gov"},
@@ -214,8 +260,8 @@ func TestExchangeCodeForAccessTokenWorks(t *testing.T) {
 
 	assertString(t, response.RefreshToken, "fake_oauth2_refresh_token:foo@bar.gov")
 	assertInt64(t, response.ExpiresIn, 10 * 60)
-
-	// TODO: Decode the access token and ensure it's what we expect.
+	assertString(t, response.AccessToken.Username, "foo@bar.gov")
+	assertString(t, response.AccessToken.Email, "foo@bar.gov")
 }
 
 func TestGetSvgLogoWorks(t *testing.T) {
