@@ -36,7 +36,7 @@ let session = {};
 //
 // It then sets the session data accordingly: if the token request failed,
 // the user (if any) is logged out. Otherwise, the user is logged in.
-function postToTokenUrl(payload, callback) {
+function postToTokenUrlAndSetSession(payload, callback) {
   request.post(UAA_TOKEN_URL, {
     form: payload,
   }, function(err, response, body) {
@@ -67,7 +67,7 @@ app.use(function tokenRefreshMiddleware(req, res, next) {
   if (session.expiry && Date.now() > session.expiry) {
     // Our session has expired! Let's renew it.
     console.log('User session has expired, attempting to renew it.');
-    postToTokenUrl({
+    postToTokenUrlAndSetSession({
       grant_type: 'refresh_token',
       refresh_token: session.refreshToken,
       client_id: CLIENT_ID,
@@ -85,27 +85,29 @@ app.use(function tokenRefreshMiddleware(req, res, next) {
   }
 });
 
-// Our "home page".
+// HTML for our home page when the user is logged in.
+function getLoggedInHtml() {
+  const expiresIn = Math.floor((session.expiry - Date.now()) / 1000);
+  return `
+    <p>Hello ${session.email}!</p>
+    <p>Your access token lasts for another ${expiresIn} seconds,
+    but will be renewed automatically.</p>
+    <p>You can also <a href="/auth/logout">logout</a>.</p>
+  `;
+}
+
+// HTML for our home page when the user is logged out.
+function getLoggedOutHtml() {
+  const url = UAA_AUTH_URL + '?' + querystring.stringify({
+    'client_id': CLIENT_ID,
+    'state': FAKE_STATE,
+    'response_type': 'code'
+  });
+  return `<a href="${url}">Log in</a> via <code>${UAA_AUTH_URL}</code>!`;
+}
+
+// Our home page.
 app.get('/', (req, res) => {
-  function getLoggedInHtml() {
-    const expiresIn = Math.floor((session.expiry - Date.now()) / 1000);
-    return `
-      <p>Hello ${session.email}!</p>
-      <p>Your access token lasts for another ${expiresIn} seconds,
-      but will be renewed automatically.</p>
-      <p>You can also <a href="/auth/logout">logout</a>.</p>
-    `;
-  }
-
-  function getLoggedOutHtml() {
-    const url = UAA_AUTH_URL + '?' + querystring.stringify({
-      'client_id': CLIENT_ID,
-      'state': FAKE_STATE,
-      'response_type': 'code'
-    });
-    return `<a href="${url}">Log in</a> via <code>${UAA_AUTH_URL}</code>!`;
-  }
-
   res.send(session.email ? getLoggedInHtml() : getLoggedOutHtml());
 });
 
@@ -121,8 +123,8 @@ app.get('/auth/callback', (req, res) => {
     return;
   }
 
-  // This exchanges an authorization code for an authorization token.
-  postToTokenUrl({
+  // Exchange our authorization code for an authorization token.
+  postToTokenUrlAndSetSession({
     code: req.query.code,
     grant_type: 'authorization_code',
     response_type: 'token',
