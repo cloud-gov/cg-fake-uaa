@@ -7,6 +7,8 @@ to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
+## [1.1.0][] - 2017-04-20
+
 * The `/oauth/token` endpoint now supports the `refresh_token` grant
   type, i.e. the server can now be used to refresh access tokens.
 
@@ -36,7 +38,8 @@ including linux as a build target.
 
 Initial release.
 
-[unreleased]: https://github.com/18F/cg-fake-uaa/compare/v1.0.4...HEAD
+[unreleased]: https://github.com/18F/cg-fake-uaa/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/18F/cg-fake-uaa/compare/v1.0.4...v1.1.0
 [1.0.4]: https://github.com/18F/cg-fake-uaa/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/18F/cg-fake-uaa/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/18F/cg-fake-uaa/compare/v1.0.1...v1.0.2

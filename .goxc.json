@@ -4,7 +4,7 @@
     "publish-github"
   ],
   "BuildConstraints": "linux,windows,darwin",
-  "PackageVersion": "1.0.4",
+  "PackageVersion": "1.1.0",
   "TaskSettings": {
     "publish-github": {
       "owner": "18F",
