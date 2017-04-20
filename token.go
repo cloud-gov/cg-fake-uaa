@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"github.com/dgrijalva/jwt-go"
 	"net/http"
 	"time"
@@ -17,42 +18,67 @@ type tokenResponse struct {
 	TokenType    string `json:"token_type"`
 }
 
-func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request) {
-	errBadRequest := func(message string) {
-		w.Header().Set("Content-Type", "text/plain")
-		w.WriteHeader(400)
-		w.Write([]byte(message))
-	}
+func SendBadRequest(w http.ResponseWriter, message string) {
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(400)
+	w.Write([]byte(message))
+}
 
-	email := r.PostFormValue("code")
+func HandleTokenRequest(w http.ResponseWriter, r *http.Request) {
 	clientId := r.PostFormValue("client_id")
-
-	if email == "" {
-		errBadRequest("'code' is missing or empty")
-		return
-	}
+	grant_type := r.PostFormValue("grant_type")
 
 	if clientId == "" {
-		errBadRequest("'client_id' is missing or empty")
+		SendBadRequest(w, "'client_id' is missing or empty")
 		return
 	}
 
 	if r.PostFormValue("client_secret") == "" {
-		errBadRequest("'client_secret' is missing or empty")
+		SendBadRequest(w, "'client_secret' is missing or empty")
 		return
 	}
 
-	if r.PostFormValue("grant_type") != "authorization_code" {
-		errBadRequest("'grant_type' is expected to be 'authorization_code'")
+	if grant_type == "authorization_code" {
+		ExchangeCodeForAccessToken(w, r, clientId)
+	} else if grant_type == "refresh_token" {
+		RefreshAccessToken(w, r, clientId)
+	} else {
+		SendBadRequest(w, "'grant_type' must be 'authorization_code' or 'refresh_token'")
+	}
+}
+
+func RefreshAccessToken(w http.ResponseWriter, r *http.Request, clientId string) {
+	refresh_token := r.PostFormValue("refresh_token")
+	parts := strings.SplitN(refresh_token, ":", 2)
+
+	if (parts[0] != "fake_oauth2_refresh_token") {
+		SendBadRequest(w, "'refresh_token' is missing or malformed")
+		return
+	}
+
+	email := parts[1]
+
+	SendAccessToken(w, clientId, email)
+}
+
+func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request, clientId string) {
+	email := r.PostFormValue("code")
+
+	if email == "" {
+		SendBadRequest(w, "'code' is missing or empty")
 		return
 	}
 
 	if r.PostFormValue("response_type") != "token" {
-		errBadRequest("'response_type' is expected to be 'token'")
+		SendBadRequest(w, "'response_type' is expected to be 'token'")
 		return
 	}
 
-	tokenDuration, err := time.ParseDuration("12h")
+	SendAccessToken(w, clientId, email)
+}
+
+func SendAccessToken(w http.ResponseWriter, clientId string, email string) {
+	tokenDuration, err := time.ParseDuration("10m")
 	if err != nil {
 		panic("Unable to parse duration!")
 	}
@@ -101,7 +127,7 @@ func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request) {
 		AccessToken:  accessTokenString,
 		ExpiresIn:    tokenDurationSeconds,
 		Jti:          "fake_jti",
-		RefreshToken: "fake_oauth2_refresh_token",
+		RefreshToken: fmt.Sprintf("fake_oauth2_refresh_token:%s", email),
 		Scope:        "openid",
 		TokenType:    "bearer",
 	})

@@ -118,16 +118,63 @@ func assertTokenError(t *testing.T, postForm url.Values, body string) {
 }
 
 func TestTokenErrorsWhenCodeIsEmpty(t *testing.T) {
-	assertTokenError(t, url.Values{}, "'code' is missing or empty")
+	assertTokenError(t, url.Values{
+		"client_id": []string{"boop"},
+		"client_secret": []string{"bap"},
+		"grant_type": []string{"authorization_code"},
+	}, "'code' is missing or empty")
 }
 
-func TestTokenErrorsWhenClientIdIsEmpty(t *testing.T) {
+func TestTokenErrorsWhenGrantTypeIsInvalid(t *testing.T) {
+	assertTokenError(t, url.Values{
+		"client_id": []string{"boop"},
+		"client_secret": []string{"bap"},
+		"grant_type": []string{"wut"},
+	}, "'grant_type' must be 'authorization_code' or 'refresh_token'")
+}
+
+func TestRefreshAccessTokenErrorsWhenRefreshTokenIsMissing(t *testing.T) {
+	assertTokenError(t, url.Values{
+		"client_id": []string{"boop"},
+		"client_secret": []string{"bap"},
+		"grant_type": []string{"refresh_token"},
+	}, "'refresh_token' is missing or malformed")	
+}
+
+func TestRefreshAccessTokenErrorsWhenRefreshTokenIsMalformed(t *testing.T) {
+	assertTokenError(t, url.Values{
+		"client_id": []string{"boop"},
+		"client_secret": []string{"bap"},
+		"grant_type": []string{"refresh_token"},
+		"refresh_token": []string{"blarg:foo@bar.com"},
+	}, "'refresh_token' is missing or malformed")	
+}
+
+func TestRefreshAccessTokenWorks(t *testing.T) {
+	recorder := handle(&http.Request{
+		Method: "POST",
+		URL:    Urlify("/oauth/token"),
+		PostForm: url.Values{
+			"client_id":     []string{"baz"},
+			"client_secret": []string{"baz"},
+			"grant_type":    []string{"refresh_token"},
+			"refresh_token": []string{"fake_oauth2_refresh_token:foo@bar.com"},
+		},
+	})
+
+	assertStatus(t, recorder, 200)
+	assertHeader(t, recorder, "Content-Type", "application/json")
+
+	// TODO: Examine the response, decode the access token and ensure it's what we expect.
+}
+
+func TestExchangeCodeForAccessTokenErrorsWhenClientIdIsEmpty(t *testing.T) {
 	assertTokenError(t, url.Values{
 		"code": []string{"foo@bar.gov"},
 	}, "'client_id' is missing or empty")
 }
 
-func TestTokenWorks(t *testing.T) {
+func TestExchangeCodeForAccessTokenWorks(t *testing.T) {
 	recorder := handle(&http.Request{
 		Method: "POST",
 		URL:    Urlify("/oauth/token"),
