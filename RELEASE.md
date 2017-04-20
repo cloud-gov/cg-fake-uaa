@@ -34,7 +34,14 @@ Here's how to issue a new release.
    ```
 
 7. Run `go generate`.
-8. Run `goxc`.
+8. Run `goxc`. Note that you may need to symlink your project
+   directory somewhere under your `GOPATH` and run it from there,
+   which is weird.
+9. You might want to visit your new [release][] and edit its
+   description so it doesn't just say "built by goxc". Consider
+   copy-pasting the section for your new version from `CHANGELOG.md`
+   into the description.
 
 [goxc]: https://github.com/laher/goxc
 [personal access token]: https://github.com/settings/tokens
+[release]: https://github.com/18F/cg-fake-uaa/releases
