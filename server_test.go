@@ -79,6 +79,7 @@ func handle(request *http.Request) *httptest.ResponseRecorder {
 
 	handler, err := NewServerHandler(&ServerConfig{
 		CallbackUrl: Urlify("http://client/callback"),
+		AccessTokenLifetime: 600,
 	})
 
 	if (err != nil)  {

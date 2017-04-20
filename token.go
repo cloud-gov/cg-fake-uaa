@@ -24,7 +24,7 @@ func SendBadRequest(w http.ResponseWriter, message string) {
 	w.Write([]byte(message))
 }
 
-func HandleTokenRequest(w http.ResponseWriter, r *http.Request) {
+func HandleTokenRequest(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
 	clientId := r.PostFormValue("client_id")
 	grant_type := r.PostFormValue("grant_type")
 
@@ -39,15 +39,15 @@ func HandleTokenRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if grant_type == "authorization_code" {
-		ExchangeCodeForAccessToken(w, r, clientId)
+		ExchangeCodeForAccessToken(config, w, r, clientId)
 	} else if grant_type == "refresh_token" {
-		RefreshAccessToken(w, r, clientId)
+		RefreshAccessToken(config, w, r, clientId)
 	} else {
 		SendBadRequest(w, "'grant_type' must be 'authorization_code' or 'refresh_token'")
 	}
 }
 
-func RefreshAccessToken(w http.ResponseWriter, r *http.Request, clientId string) {
+func RefreshAccessToken(config *ServerConfig, w http.ResponseWriter, r *http.Request, clientId string) {
 	refresh_token := r.PostFormValue("refresh_token")
 	parts := strings.SplitN(refresh_token, ":", 2)
 
@@ -58,10 +58,10 @@ func RefreshAccessToken(w http.ResponseWriter, r *http.Request, clientId string)
 
 	email := parts[1]
 
-	SendAccessToken(w, clientId, email)
+	SendAccessToken(config, w, clientId, email)
 }
 
-func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request, clientId string) {
+func ExchangeCodeForAccessToken(config *ServerConfig, w http.ResponseWriter, r *http.Request, clientId string) {
 	email := r.PostFormValue("code")
 
 	if email == "" {
@@ -74,16 +74,10 @@ func ExchangeCodeForAccessToken(w http.ResponseWriter, r *http.Request, clientId
 		return
 	}
 
-	SendAccessToken(w, clientId, email)
+	SendAccessToken(config, w, clientId, email)
 }
 
-func SendAccessToken(w http.ResponseWriter, clientId string, email string) {
-	tokenDuration, err := time.ParseDuration("10m")
-	if err != nil {
-		panic("Unable to parse duration!")
-	}
-	tokenDurationSeconds := int64(tokenDuration.Seconds())
-
+func SendAccessToken(config *ServerConfig, w http.ResponseWriter, clientId string, email string) {
 	authTime := time.Now().Unix()
 
 	// TODO: Some of these fields have been hard-coded. Might be better to use "real" values.
@@ -98,7 +92,7 @@ func SendAccessToken(w http.ResponseWriter, clientId string, email string) {
 		"cid":        clientId,
 		"client_id":  clientId,
 		"email":      email,
-		"exp":        authTime + tokenDurationSeconds,
+		"exp":        authTime + config.AccessTokenLifetime,
 		"grant_type": "authorization_code",
 		"iat":        authTime,
 		"iss":        "https://uaa.cloud.gov/oauth/token",
@@ -125,7 +119,7 @@ func SendAccessToken(w http.ResponseWriter, clientId string, email string) {
 
 	str, err := json.Marshal(tokenResponse{
 		AccessToken:  accessTokenString,
-		ExpiresIn:    tokenDurationSeconds,
+		ExpiresIn:    config.AccessTokenLifetime,
 		Jti:          "fake_jti",
 		RefreshToken: fmt.Sprintf("fake_oauth2_refresh_token:%s", email),
 		Scope:        "openid",
