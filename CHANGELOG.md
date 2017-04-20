@@ -13,8 +13,7 @@ to [Semantic Versioning](http://semver.org/).
 * The `-token-lifetime` command-line argument can be used to specify
   a lifetime for access tokens, e.g. `10m` or `10s`.
 
-* The example JS client now automatically refreshes the user's access
-  token automatically.
+* The example JS client now refreshes the user's access token automatically.
 
 ## [1.0.4][] - 2017-03-23
 
