@@ -1,12 +1,43 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"regexp"
 	"testing"
+	"github.com/dgrijalva/jwt-go"
 )
+
+type ParsedTokenResponse struct {
+	AccessToken AccessTokenClaims
+	ExpiresIn int64
+	Jti string
+	RefreshToken string
+	Scope string
+	TokenType string
+}
+
+type AccessTokenClaims struct {
+	Aud []string `json:"aud"`
+	Scope []string `json:"scope"`
+	Username string `json:"user_name"`
+	Email string `json:"email"`
+	jwt.StandardClaims
+}
+
+func assertInt64(t *testing.T, a int64, b int64) {
+	if (a != b) {
+		t.Errorf("Expected '%d' == '%d'", a, b);
+	}
+}
+
+func assertString(t *testing.T, a string, b string) {
+	if (a != b) {
+		t.Errorf("Expected '%s' == '%s'", a, b);
+	}
+}
 
 func assertStatus(t *testing.T, recorder *httptest.ResponseRecorder, code int) {
 	if recorder.Code != code {
@@ -48,6 +79,7 @@ func handle(request *http.Request) *httptest.ResponseRecorder {
 
 	handler, err := NewServerHandler(&ServerConfig{
 		CallbackUrl: Urlify("http://client/callback"),
+		AccessTokenLifetime: 600,
 	})
 
 	if (err != nil)  {
@@ -118,32 +150,119 @@ func assertTokenError(t *testing.T, postForm url.Values, body string) {
 }
 
 func TestTokenErrorsWhenCodeIsEmpty(t *testing.T) {
-	assertTokenError(t, url.Values{}, "'code' is missing or empty")
-}
-
-func TestTokenErrorsWhenClientIdIsEmpty(t *testing.T) {
 	assertTokenError(t, url.Values{
-		"code": []string{"foo@bar.gov"},
-	}, "'client_id' is missing or empty")
+		"client_id": []string{"boop"},
+		"client_secret": []string{"bap"},
+		"grant_type": []string{"authorization_code"},
+	}, "'code' is missing or empty")
 }
 
-func TestTokenWorks(t *testing.T) {
+func TestTokenErrorsWhenGrantTypeIsInvalid(t *testing.T) {
+	assertTokenError(t, url.Values{
+		"client_id": []string{"boop"},
+		"client_secret": []string{"bap"},
+		"grant_type": []string{"wut"},
+	}, "'grant_type' must be 'authorization_code' or 'refresh_token'")
+}
+
+func TestRefreshAccessTokenErrorsWhenRefreshTokenIsMissing(t *testing.T) {
+	assertTokenError(t, url.Values{
+		"client_id": []string{"boop"},
+		"client_secret": []string{"bap"},
+		"grant_type": []string{"refresh_token"},
+	}, "'refresh_token' is missing or malformed")	
+}
+
+func TestRefreshAccessTokenErrorsWhenRefreshTokenIsMalformed(t *testing.T) {
+	assertTokenError(t, url.Values{
+		"client_id": []string{"boop"},
+		"client_secret": []string{"bap"},
+		"grant_type": []string{"refresh_token"},
+		"refresh_token": []string{"blarg:foo@bar.com"},
+	}, "'refresh_token' is missing or malformed")	
+}
+
+func GetTokenResponse(t *testing.T, postForm url.Values, response *ParsedTokenResponse) {
 	recorder := handle(&http.Request{
 		Method: "POST",
 		URL:    Urlify("/oauth/token"),
-		PostForm: url.Values{
-			"code":          []string{"foo@bar.gov"},
-			"client_id":     []string{"baz"},
-			"client_secret": []string{"baz"},
-			"grant_type":    []string{"authorization_code"},
-			"response_type": []string{"token"},
-		},
+		PostForm: postForm,
 	})
 
 	assertStatus(t, recorder, 200)
 	assertHeader(t, recorder, "Content-Type", "application/json")
 
-	// TODO: Examine the response, decode the access token and ensure it's what we expect.
+	var rawResponse tokenResponse
+
+	err := json.Unmarshal(recorder.Body.Bytes(), &rawResponse)
+
+	if err != nil {
+		t.Errorf("Error unmarshaling response: %s", err.Error())
+	}
+
+	response.ExpiresIn = rawResponse.ExpiresIn
+	response.Jti = rawResponse.Jti
+	response.RefreshToken = rawResponse.RefreshToken
+	response.Scope = rawResponse.Scope
+	response.TokenType = rawResponse.TokenType
+
+	token, err := jwt.ParseWithClaims(rawResponse.AccessToken, &AccessTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte("unused secret key (for verification)"), nil
+	})
+
+	if err != nil {
+		t.Errorf("Error parsing access token JWT: %s", err.Error())
+	}
+
+	if !token.Valid {
+		t.Errorf("Access token JWT is invalid")
+	}
+
+	claims, ok := token.Claims.(*AccessTokenClaims)
+
+	if !ok {
+		t.Errorf("Claims are not OK")
+	}
+
+	response.AccessToken = *claims
+}
+
+func TestRefreshAccessTokenWorks(t *testing.T) {
+	var response ParsedTokenResponse
+
+	GetTokenResponse(t, url.Values{
+		"client_id":     []string{"baz"},
+		"client_secret": []string{"baz"},
+		"grant_type":    []string{"refresh_token"},
+		"refresh_token": []string{"fake_oauth2_refresh_token:foo@bar.com"},
+	}, &response)
+
+	assertString(t, response.RefreshToken, "fake_oauth2_refresh_token:foo@bar.com")
+	assertString(t, response.AccessToken.Username, "foo@bar.com")
+	assertString(t, response.AccessToken.Email, "foo@bar.com")
+}
+
+func TestExchangeCodeForAccessTokenErrorsWhenClientIdIsEmpty(t *testing.T) {
+	assertTokenError(t, url.Values{
+		"code": []string{"foo@bar.gov"},
+	}, "'client_id' is missing or empty")
+}
+
+func TestExchangeCodeForAccessTokenWorks(t *testing.T) {
+	var response ParsedTokenResponse
+
+	GetTokenResponse(t, url.Values{
+		"code":          []string{"foo@bar.gov"},
+		"client_id":     []string{"baz"},
+		"client_secret": []string{"baz"},
+		"grant_type":    []string{"authorization_code"},
+		"response_type": []string{"token"},
+	}, &response)
+
+	assertString(t, response.RefreshToken, "fake_oauth2_refresh_token:foo@bar.gov")
+	assertInt64(t, response.ExpiresIn, 10 * 60)
+	assertString(t, response.AccessToken.Username, "foo@bar.gov")
+	assertString(t, response.AccessToken.Email, "foo@bar.gov")
 }
 
 func TestGetSvgLogoWorks(t *testing.T) {

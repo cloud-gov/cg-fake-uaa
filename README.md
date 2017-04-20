@@ -103,7 +103,6 @@ for the client to work.
 
 The fake server currently has a lot of limitations, most notably:
 
-* The server has no support for refresh tokens.
 * Only the [`openid` scope][] is supported. That is, the server is
   only really built for giving you the logged-in user's email
   address.

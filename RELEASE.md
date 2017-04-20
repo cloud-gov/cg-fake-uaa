@@ -21,7 +21,11 @@ Here's how to issue a new release.
    ```
 
 4. Edit `.goxc.json` and increment the `PackageVersion`.
-5. Tag your version and push it to GitHub. For instance, if you're
+5. Update `CHANGELOG.md` by moving the "Unreleased" section to a
+   new section for your new version. Commit the changes with a
+   message like "Bumped version to v1.0.4.". Push your changes to
+   GitHub.
+6. Tag your version and push it to GitHub. For instance, if you're
    releasing v1.0.4, do:
 
    ```
@@ -29,8 +33,8 @@ Here's how to issue a new release.
    git push origin v1.0.4
    ```
 
-6. Run `go generate`.
-7. Run `goxc`.
+7. Run `go generate`.
+8. Run `goxc`.
 
 [goxc]: https://github.com/laher/goxc
 [personal access token]: https://github.com/settings/tokens

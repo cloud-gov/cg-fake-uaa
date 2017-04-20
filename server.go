@@ -9,6 +9,7 @@ import (
 
 type ServerConfig struct {
 	CallbackUrl *url.URL
+	AccessTokenLifetime int64
 }
 
 func NewServerHandler(config *ServerConfig) (func(http.ResponseWriter, *http.Request), error) {
@@ -29,7 +30,7 @@ func baseHandler(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == Urls.Reverse("authorize") && r.Method == "GET" {
 		Authorize(config, w, r)
 	} else if r.URL.Path == Urls.Reverse("token") && r.Method == "POST" {
-		ExchangeCodeForAccessToken(w, r)
+		HandleTokenRequest(config, w, r)
 	} else if r.URL.Path == Urls.Reverse("svgLogo") {
 		data := GetAsset("data/fake-cloud.gov.svg")
 		w.Header().Set("Content-Type", "image/svg+xml")
