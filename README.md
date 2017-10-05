@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/18F/cg-fake-uaa.svg?branch=master)](https://travis-ci.org/18F/cg-fake-uaa)
 [![Code Climate](https://codeclimate.com/github/18F/cg-fake-uaa/badges/gpa.svg)](https://codeclimate.com/github/18F/cg-fake-uaa)
 
 This is a fake User Account and Authentication ([UAA][]) server for
