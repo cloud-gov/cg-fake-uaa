@@ -111,3 +111,19 @@ The fake server currently has a lot of limitations, most notably:
 [cgauth]: https://docs.cloud.gov/apps/leveraging-authentication/
 [UAA]: https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst
 [`openid` scope]: https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst#scopes-authorized-by-the-uaa
+
+
+## [WIP] How to use `example-client` with real cloud.gov identity provider
+
+Assuming you use `uaaex` as the name of your app (it may be taken)
+
+```
+cf push --no-start uaaex
+cf create-service cloud-gov-identity-provider oauth-client my-uaa-client \
+    -c '{"redirect_uri": ["https://uaaex.app.cloud.gov"]}'
+cf create-service-key my-uaa-client my-service-key -c '{"redirect_uri": ["https://uaaex.app.cloud.gov"]}'
+cf bind-service uaaex my-uaa-client  -c '{"redirect_uri": ["https://uaaex.app.cloud.gov"]}'
+cf se uaaex UAA_AUTH_URL https://login.fr.cloud.gov/oauth/authorize
+cf se uaaex UAA_AUTH_TOKEN https://uaa.fr.cloud.gov/oauth/token
+cf restage uaaex
+```
