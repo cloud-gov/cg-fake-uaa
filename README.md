@@ -36,7 +36,7 @@ To use this fake UAA, just [download the latest release][download],
 uncompress the archive, and run the binary in it:
 
 ```
-./fake-cloud.gov
+./cg-fake-uaa
 ```
 
 The output of this command will help you set things up from there.
@@ -75,7 +75,7 @@ the server fetch data files from the `data` directory instead of using
 the files embedded into the executable at build time.
 
 To learn about changing any of the runtime options, run
-`./fake-cloud.gov -help`.
+`./cg-fake-uaa -help`.
 
 ## Running Tests
 
@@ -96,7 +96,7 @@ npm start
 
 Then visit http://localhost:8000/.
 
-Note that the server, `./fake-cloud.gov`, must also be running in order
+Note that the server, `./cg-fake-uaa`, must also be running in order
 for the client to work.
 
 ## Limitations
