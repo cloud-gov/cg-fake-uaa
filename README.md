@@ -100,7 +100,7 @@ Then visit http://localhost:8000/.
 Note that the server, `./cg-fake-uaa`, must also be running in order
 for the client to work.
 
-# How to use `example-client` with real cloud.gov identity provider
+## Running the Example Client on cloud.gov with the cloud.gov UAA
 
 Although we built `cg-fake-uaa` for testing real client applications with UAA, 
 you can use the client in `example-client` to demonstrate the capability
@@ -150,7 +150,7 @@ Your access token lasts for another 598 seconds, but will be renewed automatical
 You can also logout.
 ```
 
-### Cleaning up the example:
+### Cleaning Up the Example Client
 
 ```
 cf delete -f id-example
