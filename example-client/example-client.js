@@ -8,8 +8,17 @@ const request = require("request");
 const jwt = require("jsonwebtoken");
 
 const PORT = process.env.PORT || 8000;
-const CLIENT_ID = process.env.CLIENT_ID || 'my-client-id';
-const CLIENT_SECRET = process.env.CLIENT_SECRET || 'my-client-secret';
+var client_id = 'my_client_id';
+var client_secret = 'my_client_secret';
+var vcap_services = JSON.parse(process.env.VCAP_SERVICES || null);
+
+if ( vcap_services ) {
+  client_id = vcap_services["cloud-gov-identity-provider"][0].credentials.client_id ;
+  client_secret = vcap_services["cloud-gov-identity-provider"][0].credentials.client_secret ;
+}
+
+const CLIENT_ID = process.env.CLIENT_ID || client_id;
+const CLIENT_SECRET = process.env.CLIENT_SECRET || client_secret;
 const UAA_AUTH_URL = process.env.UAA_AUTH_URL || 
                      'http://localhost:8080/oauth/authorize';
 const UAA_TOKEN_URL = process.env.UAA_TOKEN_URL ||
