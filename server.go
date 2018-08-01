@@ -29,6 +29,8 @@ func NewServerHandler(config *ServerConfig) (func(http.ResponseWriter, *http.Req
 func baseHandler(config *ServerConfig, w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == Urls.Reverse("authorize") && r.Method == "GET" {
 		Authorize(config, w, r)
+	} else if r.URL.Path == Urls.Reverse("logout") && r.Method == "GET" {
+		Logout(config, w, r)
 	} else if r.URL.Path == Urls.Reverse("token") && r.Method == "POST" {
 		HandleTokenRequest(config, w, r)
 	} else if r.URL.Path == Urls.Reverse("svgLogo") {

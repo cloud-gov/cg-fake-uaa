@@ -126,15 +126,16 @@ Then, create an identity provider service, and service key with the correct call
 cf create-service cloud-gov-identity-provider oauth-client my-uaa-client
 sleep 15 # it takes a moment to provision the oauth-client
 cf create-service-key my-uaa-client my-service-key \
-  -c '{"redirect_uri": ["https://'$app_route'/auth/callback"]}'
+  -c '{"redirect_uri": ["https://'$app_route'/auth", "https://'$app_route'/logout"]}'
 cf bind-service id-example my-uaa-client \
-  -c '{"redirect_uri": ["https://'$app_route'/auth/callback"]}'
+  -c '{"redirect_uri": ["https://'$app_route'/auth", "https://'$app_route'/logout"]}'
 ```
 
 Pass the environment variables for the UAA URLs to the application, and start the app:
 
 ```bash
 cf set-env id-example UAA_AUTH_URL https://login.fr.cloud.gov/oauth/authorize
+cf set-env id-example UAA_LOGOUT_URL https://login.fr.cloud.gov/oauth/logout
 cf set-env id-example UAA_TOKEN_URL https://uaa.fr.cloud.gov/oauth/token
 cf start id-example
 ```
@@ -158,7 +159,6 @@ cf delete-service-key -f my-uaa-client my-service-key
 cf delete-service -f my-uaa-client
 ```
 
-
 ## Limitations
 
 The fake server currently has a lot of limitations, most notably:
@@ -171,5 +171,3 @@ The fake server currently has a lot of limitations, most notably:
 [cgauth]: https://docs.cloud.gov/apps/leveraging-authentication/
 [UAA]: https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst
 [`openid` scope]: https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst#scopes-authorized-by-the-uaa
-
-

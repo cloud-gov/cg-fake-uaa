@@ -21,6 +21,8 @@ const CLIENT_ID = process.env.CLIENT_ID || client_id;
 const CLIENT_SECRET = process.env.CLIENT_SECRET || client_secret;
 const UAA_AUTH_URL = process.env.UAA_AUTH_URL || 
                      'http://localhost:8080/oauth/authorize';
+const UAA_LOGOUT_URL = process.env.UAA_LOGOUT_URL || 
+                     'http://localhost:8080/oauth/logout';
 const UAA_TOKEN_URL = process.env.UAA_TOKEN_URL ||
                       'http://localhost:8080/oauth/token';
 
@@ -151,7 +153,14 @@ app.get('/auth/callback', (req, res) => {
 
 // Simple logout view to clear our session.
 app.get('/auth/logout', (req, res) => {
-  session = {};
+  if (session.email) { // user is authenticated
+    const logout_url = UAA_LOGOUT_URL + '?' + querystring.stringify({
+      'client_id': CLIENT_ID,
+      'redirect': '/'
+    });
+    session = {};
+    res.redirect(logout_url);
+  }
   res.redirect('/');
 });
 
