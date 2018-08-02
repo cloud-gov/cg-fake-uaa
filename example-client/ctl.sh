@@ -9,8 +9,20 @@ up() {
     echo sleep 15 # it takes a moment to provision the oauth-client
     sleep 15 # it takes a moment to provision the oauth-client
 
+    # you must provide -c option below or you get:
+    #   Server error, status code: 502, error code: 10001, message: Service broker error: Must pass JSON configuration with field "redirect_uri"
     cf create-service-key my-uaa-client my-service-key \
       -c '{"redirect_uri": ["https://'$app_route'/auth/callback"]}'
+
+
+    
+    # binding the service is required, or you get:
+    #    /home/vcap/app/example-client.js:16
+    #   client_id = vcap_services["cloud-gov-identity-provider"][0].credentials.client_id ;
+    #   2018-08-02T18:10:55.57-0400 [APP/PROC/WEB/0] ERR TypeError: Cannot read property '0' of undefined 
+
+    # Further you must provide the `-c` or you get:
+    #  "description": "Service broker error: Must pass JSON configuration with field \"redirect_uri\"",
     cf bind-service id-example my-uaa-client \
       -c '{"redirect_uri": ["https://'$app_route'/auth/callback"]}'
 
