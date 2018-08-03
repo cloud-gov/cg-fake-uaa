@@ -11,10 +11,9 @@ up() {
 
     # you must provide -c option below or you get:
     #   Server error, status code: 502, error code: 10001, message: Service broker error: Must pass JSON configuration with field "redirect_uri"
-    cf create-service-key my-uaa-client my-service-key \
-      -c '{"redirect_uri": ["https://'$app_route'/auth/callback"]}'
-
-
+      #-c '{"redirect_uri": ["https://'$app_route'/auth/callback"]}'
+    set -x
+    cf create-service-key my-uaa-client my-service-key -c '{"redirect_uri": ["https://'$app_route'/auth/callback", "https://'$app_route'/"]}'
     
     # binding the service is required, or you get:
     #    /home/vcap/app/example-client.js:16
@@ -23,8 +22,8 @@ up() {
 
     # Further you must provide the `-c` or you get:
     #  "description": "Service broker error: Must pass JSON configuration with field \"redirect_uri\"",
-    cf bind-service id-example my-uaa-client \
-      -c '{"redirect_uri": ["https://'$app_route'/auth/callback"]}'
+    cf bind-service id-example my-uaa-client -c '{"redirect_uri": ["https://'$app_route'/auth/callback", "https://'$app_route'/"]}'
+    set +x
 
     cf set-env id-example UAA_AUTH_URL https://login.fr.cloud.gov/oauth/authorize
     cf set-env id-example UAA_LOGOUT_URL https://login.fr.cloud.gov/logout.do
