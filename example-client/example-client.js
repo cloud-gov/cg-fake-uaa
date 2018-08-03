@@ -22,7 +22,7 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET || client_secret;
 const UAA_AUTH_URL = process.env.UAA_AUTH_URL || 
                      'http://localhost:8080/oauth/authorize';
 const UAA_LOGOUT_URL = process.env.UAA_LOGOUT_URL || 
-                     'http://localhost:8080/oauth/logout';
+                     'http://localhost:8080/logout.do';
 const UAA_TOKEN_URL = process.env.UAA_TOKEN_URL ||
                       'http://localhost:8080/oauth/token';
 
