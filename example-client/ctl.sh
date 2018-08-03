@@ -27,7 +27,7 @@ up() {
       -c '{"redirect_uri": ["https://'$app_route'/auth/callback"]}'
 
     cf set-env id-example UAA_AUTH_URL https://login.fr.cloud.gov/oauth/authorize
-    cf set-env id-example UAA_LOGOUT_URL https://login.fr.cloud.gov/oauth/logout
+    cf set-env id-example UAA_LOGOUT_URL https://login.fr.cloud.gov/logout.do
     cf set-env id-example UAA_TOKEN_URL https://uaa.fr.cloud.gov/oauth/token
     cf start id-example
 }
@@ -48,3 +48,14 @@ case $1 in
   down) down;;
   *) usage;;
 esac
+
+
+# For LOGOUT:
+# https://docs.cloudfoundry.org/api/uaa/version/4.19.0/index.html#logout-do
+# curl 'http://localhost/logout.do?redirect....
+# Note: If the chosen redirect URI is not whitelisted, users will land on the UAA login page. This is a security feature intended to prevent open redirects as per RFC 6749.
+
+
+
+# But the authorize URL is:
+# curl 'http://localhost/oauth/authorize?response...

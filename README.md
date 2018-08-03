@@ -135,7 +135,7 @@ Pass the environment variables for the UAA URLs to the application, and start th
 
 ```bash
 cf set-env id-example UAA_AUTH_URL https://login.fr.cloud.gov/oauth/authorize
-cf set-env id-example UAA_LOGOUT_URL https://login.fr.cloud.gov/oauth/logout
+cf set-env id-example UAA_LOGOUT_URL https://login.fr.cloud.gov/logout.do
 cf set-env id-example UAA_TOKEN_URL https://uaa.fr.cloud.gov/oauth/token
 cf start id-example
 ```
