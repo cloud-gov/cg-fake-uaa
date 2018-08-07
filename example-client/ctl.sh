@@ -5,7 +5,8 @@ redirect_uri() {
     case $1 in 
         1) echo \'{\"redirect_uri\": [\"https://$app_route/auth/callback\"]}\'
         ;;
-        2) echo \'{\"redirect_uri\": [\"https://$app_route/auth/callback\", \"https://$app_route/auth/logout\"]}\'
+        2) echo \'{\"redirect_uri\": [\"https://$app_route/auth/callback\", \"https://$app_route/auth/logout\", \"https://$app_route/auth/callback\"]}\'
+        #2) echo \'{\"redirect_uri\": [\"https://$app_route/auth/callback\", \"https://$app_route/auth/logout\"]}\'
         ;;
         *)
         echo "oops"
@@ -18,7 +19,7 @@ up() {
     n=$1
     app="id-example-$n"
     cf push -m 128M --no-start --random-route $app
-    app_route=$(cf apps | grep '^id-example' | awk '{print $NF}')
+    app_route=$(cf apps | grep "^$app" | awk '{print $NF}')
     echo app_route: $app_route
     cf create-service cloud-gov-identity-provider oauth-client uaa-$app
     echo sleep 15 # it takes a moment to provision the oauth-client
