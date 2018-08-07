@@ -1,3 +1,32 @@
+# Deprecation/Archive Notice:
+
+The stated rationale for this project were:
+
+> **Authenticating with cloud.gov can be challenging when developing an app:**
+> * It can be difficult or impossible to log in as multiple different users to manually test your application's functionality.
+> * If you're offline or on a spotty internet connection, authenticating with cloud.gov may be challenging.
+> * Because logging into cloud.gov usually involves 2 factor authentication, logging in can be slow and cumbersome, which can slow down development.
+> * Registering the client ID, client secret, and callback URL in cloud.gov requires creating new identity providers, and you may want a lighter-weight approach for development.
+> * Debugging problems with the OAuth2 handshake can be difficult because you don't have much visibility into cloud.gov's internal state.
+> * The fake UAA is intended to solve these problems by making it easy to host your own UAA server on your local system. The simplicity of its implementation and its debugging messages allow developers to easily understand what's going on during the OAuth2 handshake. It also makes it dead simple to log in as multiple different users.
+
+All of these issues are now well-addressed by running UAA in Docker, and we have provided a guide to that at https://cloud.gov/docs/apps/leveraging-authentication/ and in more detail at https://github.com/18F/cg-demos/blob/master/cg-identity/README.md. 
+
+Working with Dockerized UAA, one can:
+
+* log in as multiple different users, `paul` or `stefan`
+* run this without cloud.gov being available (if you use a local `uaa.yml` and have already download the docker image)
+* skip 2-factor auth and just use user/password per your `uaa.yml` configuration
+* fully configure uaa.yml to mimic whatever features of cloud.gov auth that one wants
+* debug by connecting to the container and tailing the log file, e.g. `docker exec  uaa-uaa /usr/bin/tail -f /tomcat/logs/uaa.log`
+
+So, we've deprecated this project, and removed references to it from cloud.gov
+
+Thanks to @toolness and others who kept this running until Docker caught up with our needs. 
+
+
+---
+
 [![Build Status](https://travis-ci.org/18F/cg-fake-uaa.svg?branch=master)](https://travis-ci.org/18F/cg-fake-uaa)
 [![Code Climate](https://codeclimate.com/github/18F/cg-fake-uaa/badges/gpa.svg)](https://codeclimate.com/github/18F/cg-fake-uaa)
 
